@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="bn" data-lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CafeTrack — গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম</title>
+<meta name="description" id="meta-desc" content="কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। বাংলাদেশের গেমিং ক্যাফের জন্য বানানো।">
+<meta name="theme-color" content="#0b1020">
+
+<!-- ===================================================================
+     TODO (Efat): replace https://cafetrack.example.com/ everywhere below
+     with your real domain once you point one at this site.
+     =================================================================== -->
+<link rel="canonical" href="https://cafetrack.example.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CafeTrack">
+<meta property="og:url" content="https://cafetrack.example.com/">
+<meta property="og:title" content="CafeTrack — গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম">
+<meta property="og:description" content="কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়।">
+<meta property="og:locale" content="bn_BD">
+<meta property="og:locale:alternate" content="en_US">
+<!-- TODO (Efat): export assets/img/og-image.svg as a real 1200x630 JPG and swap the path -->
+<meta property="og:image" content="https://cafetrack.example.com/assets/img/og-image.svg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CafeTrack — গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CafeTrack — গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম">
+<meta name="twitter:description" content="প্রতিটি ডিভাইস, প্রতিটি সেশন, প্রতিটি টাকা — এক স্ক্রিনে।">
+<meta name="twitter:image" content="https://cafetrack.example.com/assets/img/og-image.svg">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236366f1'/%3E%3Crect x='7' y='11' width='7' height='7' rx='2' fill='%23fff'/%3E%3Crect x='18' y='11' width='7' height='7' rx='2' fill='%2334d399'/%3E%3Crect x='7' y='21' width='18' height='3' rx='1.5' fill='%23fff' opacity='.5'/%3E%3C/svg%3E">
+
+<!-- Fonts are self-hosted (assets/fonts/), Bangla + Latin subsets only, so there
+     is no third-party DNS/TLS round trip on a 3G phone and no chance of Bangla
+     falling back to a system serif. Bangla = Noto Sans Bengali (correct conjunct
+     rendering), English = Inter. All faces use font-display:swap, so text paints
+     immediately. See README.md for how to regenerate these files. -->
+<link rel="stylesheet" href="assets/fonts.css">
+
+<style>
+/* ============================ TOKENS ============================ */
+/* Dark is the base palette. Light is applied when the OS asks for it
+   (or when the header toggle sets data-theme="light" explicitly). */
+:root{
+  --bg:#0b1020;
+  --bg-2:#0f1528;
+  --surface:#141c33;
+  --surface-2:#1b2542;
+  --line:#243056;
+  --line-soft:#1b2440;
+  --fg:#eef1f8;
+  --fg-2:#b9c2da;
+  --fg-3:#8590ae;
+  --accent:#7c83f7;
+  --accent-strong:#6366f1;
+  --accent-ink:#ffffff;
+  --accent-soft:rgba(99,102,241,.14);
+  --money:#34d399;
+  --money-soft:rgba(16,185,129,.13);
+  --warn:#f59e0b;
+  --wa:#25d366;
+  --wa-ink:#04231a;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.75);
+  --shadow-sm:0 8px 24px -12px rgba(0,0,0,.6);
+  --radius:16px;
+  --radius-lg:22px;
+  --maxw:1160px;
+  /* Noto sits in BOTH stacks on purpose: some strings stay Bangla even in
+     English mode (the WhatsApp button), and Inter has no Bengali glyphs — so
+     without this, those words drop to a system serif. */
+  --sans:"Inter","Noto Sans Bengali",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --bn:"Noto Sans Bengali","Hind Siliguri","Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --font:var(--bn);
+}
+
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f7f8fc; --bg-2:#ffffff; --surface:#ffffff; --surface-2:#f1f3fa;
+    --line:#dfe3f0; --line-soft:#e9ecf6;
+    --fg:#0d1428; --fg-2:#404a68; --fg-3:#606b8a;
+    --accent:#4f46e5; --accent-strong:#4f46e5; --accent-ink:#ffffff;
+    --accent-soft:rgba(79,70,229,.09);
+    --money:#047857; --money-soft:rgba(4,120,87,.10);
+    --warn:#b45309;
+    --shadow:0 24px 55px -28px rgba(16,24,60,.35);
+    --shadow-sm:0 8px 22px -14px rgba(16,24,60,.28);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f7f8fc; --bg-2:#ffffff; --surface:#ffffff; --surface-2:#f1f3fa;
+  --line:#dfe3f0; --line-soft:#e9ecf6;
+  --fg:#0d1428; --fg-2:#404a68; --fg-3:#606b8a;
+  --accent:#4f46e5; --accent-strong:#4f46e5; --accent-ink:#ffffff;
+  --accent-soft:rgba(79,70,229,.09);
+  --money:#047857; --money-soft:rgba(4,120,87,.10);
+  --warn:#b45309;
+  --shadow:0 24px 55px -28px rgba(16,24,60,.35);
+  --shadow-sm:0 8px 22px -14px rgba(16,24,60,.28);
+}
+
+/* ============================ BASE ============================ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; scroll-padding-top:82px}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--font); font-size:17.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+html[data-lang="en"] body{ --font:var(--sans); }
+img,svg{max-width:100%; height:auto; display:block}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.25; margin:0 0 .5em; font-weight:800; letter-spacing:-.015em}
+html[lang="bn"] h1,html[lang="bn"] h2,html[lang="bn"] h3{letter-spacing:0; line-height:1.4}
+p{margin:0 0 1em}
+.num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
+:where(a,button,summary,input,select,textarea):focus-visible{
+  outline:3px solid var(--accent); outline-offset:3px; border-radius:8px;
+}
+.skip{
+  position:absolute; left:-9999px; top:0; z-index:200;
+  background:var(--accent-strong); color:var(--accent-ink);
+  padding:12px 18px; border-radius:0 0 12px 0; font-weight:700;
+}
+.skip:focus{left:0}
+.wrap{width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:20px}
+/* Grid/flex items default to min-width:auto, which lets a long unbreakable
+   string (e.g. the URL chip in a browser frame) widen its track past the
+   viewport. This is the guard against horizontal scroll at 360px. */
+.hero-grid>*,.feature>*,.cta-grid>*,.early-grid>*,.ftr-grid>*,.cards>*,.steps>*{min-width:0}
+.frame,.frame-bar,.feature-media{min-width:0}
+section{padding:clamp(56px,8vw,104px) 0; scroll-margin-top:78px}
+.eyebrow{
+  display:inline-block; font-size:.78rem; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); background:var(--accent-soft);
+  padding:6px 13px; border-radius:999px; margin-bottom:16px;
+}
+html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
+.sec-title{font-size:clamp(1.65rem,4.2vw,2.5rem); margin-bottom:.35em}
+.sec-lede{color:var(--fg-2); max-width:62ch; font-size:1.06rem; margin-bottom:0}
+.center{text-align:center}
+.center .sec-lede{margin-inline:auto}
+
+/* ============================ BUTTONS ============================ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  padding:14px 22px; border-radius:12px; border:1px solid transparent;
+  font:inherit; font-weight:700; font-size:1rem; text-decoration:none;
+  cursor:pointer; transition:transform .16s ease, background .16s ease, border-color .16s ease;
+  min-height:50px;
+}
+.btn:hover{transform:translateY(-2px)}
+@media (prefers-reduced-motion: reduce){ .btn:hover{transform:none} }
+.btn-wa{background:var(--wa); color:var(--wa-ink)}
+.btn-wa:hover{background:#1fbe5b}
+.btn-primary{background:var(--accent-strong); color:var(--accent-ink)}
+.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent; color:var(--fg); border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--accent); color:var(--accent)}
+.btn-sm{padding:9px 15px; min-height:42px; font-size:.92rem; border-radius:10px}
+.btn svg{flex:0 0 auto}
+
+/* ============================ HEADER ============================ */
+.hdr{
+  position:sticky; top:0; z-index:60;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:saturate(140%) blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.hdr-in{display:flex; align-items:center; gap:14px; height:70px}
+.brand{display:flex; align-items:center; gap:10px; text-decoration:none; font-weight:800; font-size:1.2rem; letter-spacing:-.02em}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:var(--accent-strong);display:grid;place-items:center;flex:0 0 auto}
+.brand-mark span{width:8px;height:8px;border-radius:2px;background:#fff;box-shadow:11px 0 0 var(--money), 0 11px 0 rgba(255,255,255,.5), 11px 11px 0 rgba(255,255,255,.5)}
+.nav{display:flex; gap:4px; margin-inline:auto}
+.nav a{
+  text-decoration:none; color:var(--fg-2); font-weight:600; font-size:.97rem;
+  padding:9px 13px; border-radius:10px;
+}
+.nav a:hover{color:var(--fg); background:var(--surface)}
+.hdr-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
+.nav + .hdr-actions{margin-left:0}
+.toggle-group{display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:11px; padding:3px}
+.toggle-group button{
+  border:0; background:transparent; color:var(--fg-3); font:inherit; font-weight:700;
+  font-size:.85rem; padding:6px 11px; border-radius:8px; cursor:pointer; min-height:34px;
+}
+.toggle-group button[aria-pressed="true"]{background:var(--accent-soft); color:var(--accent)}
+.icon-btn{
+  width:42px;height:42px;display:grid;place-items:center;border-radius:11px;
+  background:var(--surface); border:1px solid var(--line); color:var(--fg-2); cursor:pointer;
+}
+.icon-btn:hover{color:var(--accent); border-color:var(--accent)}
+.burger{display:none}
+.mobile-nav{display:none; border-top:1px solid var(--line-soft); background:var(--bg-2)}
+.mobile-nav.open{display:block}
+.mobile-nav a{display:block; padding:15px 20px; text-decoration:none; color:var(--fg-2); font-weight:600; border-bottom:1px solid var(--line-soft)}
+.mobile-nav .btn{margin:14px 20px 18px; width:calc(100% - 40px)}
+@media (max-width:900px){
+  .nav{display:none}
+  .burger{display:grid}
+  .hdr-actions{margin-left:auto}
+  .hdr .btn-wa-top{display:none}
+}
+@media (max-width:400px){
+  /* keep every control reachable at 360px — just tighten them */
+  .hdr-in{gap:8px}
+  .brand{font-size:1.05rem}
+  .toggle-group button{padding:6px 8px; font-size:.8rem}
+  .icon-btn{width:38px;height:38px}
+}
+
+/* ============================ HERO ============================ */
+.hero{
+  padding-top:clamp(38px,6vw,64px); padding-bottom:clamp(44px,6vw,72px);
+  background:
+    radial-gradient(80% 60% at 50% -10%, var(--accent-soft), transparent 70%),
+    var(--bg);
+  border-bottom:1px solid var(--line-soft);
+}
+.hero-grid{display:grid; gap:clamp(30px,5vw,54px); align-items:center}
+@media (min-width:960px){ .hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr)} }
+.hero h1{font-size:clamp(1.95rem,5.4vw,3.25rem); margin-bottom:.4em}
+.hero-sub{font-size:clamp(1.02rem,2.2vw,1.2rem); color:var(--fg-2); max-width:56ch}
+.hero-cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:26px}
+.hero-cta .btn{flex:1 1 auto; min-width:190px}
+.hero-note{
+  margin-top:16px; font-size:.94rem; color:var(--fg-3);
+  display:flex; align-items:center; gap:8px;
+}
+.hero-note::before{content:""; width:7px;height:7px;border-radius:50%;background:var(--money);flex:0 0 auto}
+
+/* browser frame */
+.frame{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.frame-bar{
+  display:flex; align-items:center; gap:7px; padding:11px 14px;
+  border-bottom:1px solid var(--line-soft); background:var(--surface-2);
+}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--line);flex:0 0 auto}
+.frame-url{
+  margin-left:8px; flex:1; min-width:0; font-size:.76rem; color:var(--fg-3);
+  background:var(--bg-2); border-radius:7px; padding:5px 11px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:var(--sans);
+}
+.frame img{width:100%; display:block; background:var(--bg-2)}
+.frame-phone{max-width:300px; margin-inline:auto; border-radius:30px}
+.frame-phone .frame-bar{justify-content:center; padding:9px}
+.shot-cap{
+  margin-top:10px; font-size:.84rem; color:var(--fg-3); text-align:center; font-family:var(--sans);
+}
+
+/* ============================ PROBLEM CARDS ============================ */
+.cards{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-top:36px}
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:24px 22px; box-shadow:var(--shadow-sm);
+}
+.card-q{font-size:1.12rem; font-weight:700; margin:0 0 .5em}
+.card p{color:var(--fg-2); font-size:.98rem; margin:0}
+.card-num{
+  font-family:var(--sans); font-size:.78rem; font-weight:800; letter-spacing:.1em;
+  color:var(--warn); display:block; margin-bottom:12px;
+}
+
+/* ============================ FEATURES ============================ */
+.feature{
+  display:grid; gap:clamp(24px,4vw,56px); align-items:center;
+  padding:clamp(34px,5vw,58px) 0; border-top:1px solid var(--line-soft);
+}
+.feature:first-of-type{border-top:0}
+@media (min-width:900px){
+  .feature{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+  .feature.reverse .feature-media{order:-1}
+}
+.feature h3{font-size:clamp(1.3rem,2.8vw,1.75rem)}
+.feature p{color:var(--fg-2)}
+.feature-tag{
+  display:inline-block; font-family:var(--sans); font-size:.74rem; font-weight:800;
+  letter-spacing:.12em; color:var(--accent); margin-bottom:10px;
+}
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; padding:0; list-style:none}
+.chips li{
+  font-size:.86rem; color:var(--fg-2); background:var(--surface-2);
+  border:1px solid var(--line); border-radius:999px; padding:5px 12px;
+}
+.rate-strip{
+  display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; padding:0; list-style:none;
+}
+.rate-strip li{
+  background:var(--money-soft); border:1px solid color-mix(in srgb, var(--money) 35%, transparent);
+  color:var(--money); border-radius:10px; padding:8px 14px; font-weight:700; font-size:.95rem;
+}
+
+/* ============================ STEPS ============================ */
+.steps{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); margin-top:40px}
+.step{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:26px 24px; position:relative;
+}
+.step-n{
+  width:44px;height:44px;border-radius:13px; display:grid; place-items:center;
+  background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:1.15rem;
+  margin-bottom:16px;
+}
+.step h3{font-size:1.14rem; margin-bottom:.4em}
+.step p{color:var(--fg-2); font-size:.98rem; margin:0}
+
+/* ============================ AUDIENCE STRIP ============================ */
+.strip{
+  display:flex; flex-wrap:wrap; gap:12px; justify-content:center; padding:0; list-style:none; margin:32px 0 0;
+}
+.strip li{
+  background:var(--surface); border:1px solid var(--line); border-radius:999px;
+  padding:11px 20px; font-weight:600; color:var(--fg-2);
+}
+
+/* ============================ PRICING ============================ */
+.price-wrap{display:grid; justify-content:center; margin-top:40px}
+.price-card{
+  background:var(--surface); border:1px solid var(--accent-strong); border-radius:var(--radius-lg);
+  padding:clamp(28px,5vw,42px); max-width:560px; text-align:center; box-shadow:var(--shadow);
+  position:relative;
+}
+.price-badge{
+  position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+  background:var(--accent-strong); color:var(--accent-ink); font-size:.8rem; font-weight:800;
+  padding:6px 16px; border-radius:999px; white-space:nowrap;
+}
+.price-amount{font-size:clamp(1.7rem,5vw,2.4rem); font-weight:800; margin:14px 0 6px}
+.price-list{list-style:none; padding:0; margin:24px 0; text-align:start; display:grid; gap:11px}
+.price-list li{display:flex; gap:11px; align-items:flex-start; color:var(--fg-2)}
+.tick{flex:0 0 auto; margin-top:4px; color:var(--money)}
+.price-foot{font-size:.9rem; color:var(--fg-3); margin:16px 0 0}
+
+/* ============================ EARLY ============================ */
+.early{background:var(--bg-2); border-block:1px solid var(--line-soft)}
+.early-grid{display:grid; gap:clamp(26px,4vw,48px)}
+@media (min-width:900px){ .early-grid{grid-template-columns:1fr 1fr} }
+.early-list{list-style:none; padding:0; margin:0; display:grid; gap:14px}
+.early-list li{
+  display:flex; gap:13px; background:var(--surface); border:1px solid var(--line);
+  border-radius:14px; padding:18px 20px;
+}
+.early-list strong{display:block; margin-bottom:3px}
+.early-list span{color:var(--fg-2); font-size:.96rem}
+
+/* ============================ FAQ ============================ */
+.faq-list{max-width:820px; margin:36px auto 0; display:grid; gap:12px}
+details{
+  background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+}
+details[open]{border-color:var(--accent)}
+summary{
+  cursor:pointer; list-style:none; padding:19px 54px 19px 22px; font-weight:700;
+  position:relative; font-size:1.03rem;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{
+  content:""; position:absolute; inset-inline-end:22px; top:26px;
+  width:10px;height:10px; border-right:2.5px solid var(--fg-3); border-bottom:2.5px solid var(--fg-3);
+  transform:rotate(45deg); transition:transform .2s ease;
+}
+details[open] summary::after{transform:rotate(-135deg); border-color:var(--accent)}
+.faq-a{padding:0 22px 20px; color:var(--fg-2); margin:0}
+
+/* ============================ FINAL CTA ============================ */
+.cta{
+  background:linear-gradient(180deg, var(--bg-2), var(--bg));
+  border-top:1px solid var(--line-soft);
+}
+.cta-grid{display:grid; gap:clamp(28px,4vw,52px); align-items:start}
+@media (min-width:900px){ .cta-grid{grid-template-columns:1fr 1fr} }
+.contact-box{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:clamp(22px,4vw,32px); box-shadow:var(--shadow-sm);
+}
+.field{margin-bottom:16px}
+.field label{display:block; font-weight:600; font-size:.94rem; margin-bottom:7px}
+.field input{
+  width:100%; padding:13px 15px; border-radius:11px; border:1px solid var(--line);
+  background:var(--bg-2); color:var(--fg); font:inherit; font-size:1rem; min-height:50px;
+}
+.field input::placeholder{color:var(--fg-3)}
+.field input:focus{border-color:var(--accent)}
+.form-note{font-size:.86rem; color:var(--fg-3); margin:14px 0 0}
+.form-status{margin:14px 0 0; font-weight:600; color:var(--money); min-height:1.4em}
+.phone-line{
+  display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line);
+  border-radius:14px; padding:16px 20px; margin-top:20px; text-decoration:none; flex-wrap:wrap;
+}
+.phone-line b{font-size:1.2rem; letter-spacing:.02em}
+
+/* ============================ FOOTER ============================ */
+.ftr{border-top:1px solid var(--line-soft); padding:44px 0 40px; color:var(--fg-3); font-size:.95rem}
+.ftr-grid{display:grid; gap:26px}
+@media (min-width:720px){ .ftr-grid{grid-template-columns:1.4fr 1fr 1fr} }
+.ftr a{color:var(--fg-2); text-decoration:none}
+.ftr a:hover{color:var(--accent)}
+.ftr h4{font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-3); margin-bottom:14px}
+html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
+.ftr ul{list-style:none; padding:0; margin:0; display:grid; gap:10px}
+.ftr-bottom{margin-top:34px; padding-top:22px; border-top:1px solid var(--line-soft); font-size:.88rem}
+
+/* ============================ FLOATING WA ============================ */
+.fab{
+  position:fixed; inset-inline-end:18px; bottom:18px; z-index:70;
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--wa); color:var(--wa-ink); font-weight:800; text-decoration:none;
+  padding:14px 20px; border-radius:999px; box-shadow:0 14px 34px -10px rgba(0,0,0,.55);
+  opacity:0; visibility:hidden; transform:translateY(14px);
+  transition:opacity .25s ease, transform .25s ease, visibility .25s;
+}
+.fab.show{opacity:1; visibility:visible; transform:none}
+@media (max-width:520px){ .fab .fab-txt{display:none} .fab{padding:15px; inset-inline-end:14px; bottom:14px} }
+
+/* ============================ MOTION ============================ */
+.reveal{opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s cubic-bezier(.22,.8,.3,1)}
+.reveal.in{opacity:1; transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1 !important; transform:none !important; transition:none}
+  .fab{transition:none}
+  *{animation:none !important}
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main" data-i18n="skip">মূল কনটেন্টে যান</a>
+
+<!-- ======================= HEADER ======================= -->
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="#top" aria-label="CafeTrack">
+      <span class="brand-mark" aria-hidden="true"><span></span></span>
+      CafeTrack
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#features" data-i18n="nav.features">ফিচার</a>
+      <a href="#how" data-i18n="nav.how">কিভাবে চলে</a>
+      <a href="#pricing" data-i18n="nav.pricing">প্রাইসিং</a>
+      <a href="#faq" data-i18n="nav.faq">প্রশ্ন</a>
+    </nav>
+
+    <div class="hdr-actions">
+      <div class="toggle-group" role="group" data-i18n-attr="aria-label:a11y.langGroup" aria-label="ভাষা নির্বাচন">
+        <button type="button" id="lang-bn" aria-pressed="true" lang="bn">বাংলা</button>
+        <button type="button" id="lang-en" aria-pressed="false" lang="en">EN</button>
+      </div>
+      <button type="button" class="icon-btn theme-btn" id="theme-btn"
+              data-i18n-attr="aria-label:a11y.theme" aria-label="থিম বদলান">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" id="theme-icon">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>
+        </svg>
+      </button>
+      <a class="btn btn-wa btn-sm btn-wa-top js-wa" href="#contact">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.5-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l2 1c.3.1.4.2.5.3.1.2.1.6-.1 1.1Z"/></svg>
+        <span data-i18n="nav.wa">WhatsApp করুন</span>
+      </a>
+      <button type="button" class="icon-btn burger" id="burger" aria-expanded="false" aria-controls="mobile-nav"
+              data-i18n-attr="aria-label:a11y.menu" aria-label="মেনু">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#features" data-i18n="nav.features">ফিচার</a>
+    <a href="#how" data-i18n="nav.how">কিভাবে চলে</a>
+    <a href="#pricing" data-i18n="nav.pricing">প্রাইসিং</a>
+    <a href="#faq" data-i18n="nav.faq">প্রশ্ন</a>
+    <a class="btn btn-wa js-wa" href="#contact"><span data-i18n="nav.wa">WhatsApp করুন</span></a>
+  </div>
+</header>
+
+<main id="main">
+<span id="top"></span>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" aria-labelledby="hero-h">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow" data-i18n="hero.eyebrow">গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম</span>
+      <h1 id="hero-h" data-i18n="hero.h1">আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি হিসাবে?</h1>
+      <p class="hero-sub" data-i18n="hero.sub">কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। খাতা আর Excel এর দিন শেষ।</p>
+      <div class="hero-cta">
+        <a class="btn btn-wa js-wa" href="#contact">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.5-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l2 1c.3.1.4.2.5.3.1.2.1.6-.1 1.1Z"/></svg>
+          <span data-i18n="hero.cta1">ফ্রি ডেমো নিন</span>
+        </a>
+        <a class="btn btn-ghost" href="#features" data-i18n="hero.cta2">ফিচার দেখুন</a>
+      </div>
+      <p class="hero-note" data-i18n="hero.note">Game n Chill এর জন্য বানানো, এখন সব ক্যাফের জন্য</p>
+    </div>
+
+    <div class="feature-media">
+      <!-- SCREENSHOT 1 — dashboard floor board, capture at 1440px wide -->
+      <div class="frame">
+        <div class="frame-bar" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="frame-url">cafetrack.app/dashboard</span>
+        </div>
+        <img src="assets/img/shot-1-floor-board.svg" width="1440" height="900"
+             fetchpriority="high" decoding="async"
+             data-i18n-attr="alt:shots.alt1"
+             alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+      </div>
+      <p class="shot-cap" data-i18n="shots.cap1">স্ক্রিনশট ১ — ড্যাশবোর্ডের ফ্লোর বোর্ড (১৪৪০px এ তুলুন)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PROBLEM ======================= -->
+<section id="problem" aria-labelledby="problem-h">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="problem.eyebrow">চেনা সমস্যা</span>
+      <h2 class="sec-title" id="problem-h" data-i18n="problem.h">রাতে ক্যাশ গুনে মেলাতে গিয়ে এই প্রশ্নগুলো আসে না?</h2>
+      <p class="sec-lede" data-i18n="problem.lede">এগুলো কোনো ফিচার লিস্ট না। প্রতিদিন ক্যাফে চালাতে গিয়ে যেগুলোর উত্তর হাতে থাকে না।</p>
+    </div>
+    <div class="cards">
+      <article class="card reveal">
+        <span class="card-num num">01</span>
+        <h3 class="card-q" data-i18n="problem.q1">কোন বুথে কত ইনকাম, বলতে পারেন?</h3>
+        <p data-i18n="problem.a1">চার নম্বর PS5 টা সারাদিন চলে, নাকি পড়ে থাকে — অনুমান ছাড়া বলার উপায় নেই।</p>
+      </article>
+      <article class="card reveal">
+        <span class="card-num num">02</span>
+        <h3 class="card-q" data-i18n="problem.q2">স্টাফের ক্যাশের হিসাব মিলছে তো?</h3>
+        <p data-i18n="problem.a2">টাকা স্টাফের হাতে ওঠে। দিনশেষে যা জমা পড়ল, সেটাই ঠিক কিনা মিলিয়ে দেখার কিছু নেই।</p>
+      </article>
+      <article class="card reveal">
+        <span class="card-num num">03</span>
+        <h3 class="card-q" data-i18n="problem.q3">খরচ বাদে আসল লাভ কত?</h3>
+        <p data-i18n="problem.a3">কত টাকা ঢুকল সেটা জানেন। কিন্তু কারেন্ট, ইন্টারনেট, বেতন, স্ন্যাকস বাদ দিয়ে কী থাকল?</p>
+      </article>
+      <article class="card reveal">
+        <span class="card-num num">04</span>
+        <h3 class="card-q" data-i18n="problem.q4">কাস্টমার সময় পার করে ফেললে কে খেয়াল রাখে?</h3>
+        <p data-i18n="problem.a4">এক ঘণ্টার বুকিং দেড় ঘণ্টা হয়ে যায়। ব্যস্ত সন্ধ্যায় কেউ ঘড়ি দেখে না।</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FEATURES ======================= -->
+<section id="features" aria-labelledby="features-h">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow" data-i18n="features.eyebrow">সিস্টেম যা করে</span>
+      <h2 class="sec-title" id="features-h" data-i18n="features.h">যা যা আছে</h2>
+      <p class="sec-lede" data-i18n="features.lede">ব্রাউজারে চলে — ফোন, ট্যাব বা ল্যাপটপ। কিছু ইনস্টল করতে হয় না।</p>
+    </div>
+
+    <!-- 1. floor board -->
+    <article class="feature reveal">
+      <div>
+        <span class="feature-tag num">01</span>
+        <h3 data-i18n="f1.h">পুরো ফ্লোর এক স্ক্রিনে, প্রতি ৫ সেকেন্ডে আপডেট</h3>
+        <p data-i18n="f1.p">প্রতিটা ডিভাইসের একটা টাইল — ফাঁকা না চলছে, কে খেলছে, কত সময় হলো, এই মুহূর্তে বিল কত, আর বুক করা সময়ের কতটুকু বাকি।</p>
+        <p data-i18n="p2.f1">ফাঁকা টাইলে Start session, চলন্ত টাইলে End session। স্টাফের এর বেশি কিছু শেখার নেই।</p>
+        <ul class="chips">
+          <li data-i18n="f1.c1">লাইভ টাইমার</li>
+          <li data-i18n="f1.c2">চলন্ত বিল</li>
+          <li data-i18n="f1.c3">সময় শেষের প্রোগ্রেস বার</li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 1 (reused) -->
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/dashboard</span></div>
+          <img src="assets/img/shot-1-floor-board.svg" width="1440" height="900" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt1"
+               alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+        </div>
+      </div>
+    </article>
+
+    <!-- 2. pricing -->
+    <article class="feature reverse reveal">
+      <div>
+        <span class="feature-tag num">02</span>
+        <h3 data-i18n="f2.h">কন্ট্রোলার অনুযায়ী রেট — যেভাবে আপনি আসলে চার্জ করেন</h3>
+        <p data-i18n="f2.p">১ কন্ট্রোলার এক রেট, ২ কন্ট্রোলার আরেক রেট — আর সেটা প্রতিটা ডিভাইসের জন্য আলাদা করে বসানো যায়। PS5 Pro আর PS4 এর দাম এক হওয়ার দরকার নেই।</p>
+        <p data-i18n="p2.f2">মিনিটে বিল হবে নাকি ১৫/৩০/৬০ মিনিটের ব্লকে উঠবে, আর শেষ অঙ্কটা ৳৫ না ৳১০ এ রাউন্ড হবে — সব আপনার হাতে।</p>
+        <ul class="rate-strip">
+          <li class="num" data-i18n="f2.r1">১ কন্ট্রোলার ৳১০০/ঘণ্টা</li>
+          <li class="num" data-i18n="f2.r2">২ কন্ট্রোলার ৳১২০/ঘণ্টা</li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 3 — Stations screen, per-controller rates, 1440px -->
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/stations</span></div>
+          <img src="assets/img/shot-3-station-rates.svg" width="1440" height="900" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt3"
+               alt="Stations স্ক্রিন — একটি ডিভাইসের কন্ট্রোলার অনুযায়ী ঘণ্টার রেট আর রাউন্ডিং সেটিং।">
+        </div>
+        <p class="shot-cap" data-i18n="shots.cap3">স্ক্রিনশট ৩ — Stations স্ক্রিন (১৪৪০px)</p>
+      </div>
+    </article>
+
+    <!-- 3. bill -->
+    <article class="feature reveal">
+      <div>
+        <span class="feature-tag num">03</span>
+        <h3 data-i18n="f3.h">কাউন্টারে যে অঙ্কটা দেখাবে, সেটাই নেওয়া হবে</h3>
+        <p data-i18n="f3.p">সেশন শেষ করলে টাকা নেওয়ার আগেই পুরো হিসাব সামনে আসে — কত সময় খেলল, কোন ব্লকে উঠল, রেট কত, রাউন্ডিং কত, ডিসকাউন্ট কত, আর বড় করে To collect।</p>
+        <p data-i18n="p2.f3">স্ক্রিন ছেড়ে না গিয়েই ৮০mm রসিদ প্রিন্ট করুন বা PDF সেভ করুন। কাস্টমারের সাথে অঙ্ক নিয়ে তর্ক করার জায়গা থাকে না।</p>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 2 — End session dialog, 1440px -->
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/session/end</span></div>
+          <img src="assets/img/shot-2-end-session-bill.svg" width="1440" height="900" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt2"
+               alt="End session ডায়ালগ — সময়, ব্লক, রেট, রাউন্ডিং, ডিসকাউন্ট আর To collect এর পুরো হিসাব।">
+        </div>
+        <p class="shot-cap" data-i18n="shots.cap2">স্ক্রিনশট ২ — End session ডায়ালগ (১৪৪০px)</p>
+      </div>
+    </article>
+
+    <!-- 4. staff control + drawer -->
+    <article class="feature reverse reveal">
+      <div>
+        <span class="feature-tag num">04</span>
+        <h3 data-i18n="f4.h">ডিসকাউন্ট আর ক্যাশ ড্রয়ার আপনার নিয়ন্ত্রণে</h3>
+        <p data-i18n="f4.p">ফ্ল্যাট টাকা বা পার্সেন্টে ছাড় দিতে পারেন শুধু admin। স্টাফ ডিসকাউন্টও দিতে পারবে না, বিল void ও করতে পারবে না — সিস্টেম করতে দেয় না। প্রতিটা ছাড় কারণ আর কে দিল সহ activity log এ লেখা থাকে।</p>
+        <p data-i18n="p2.f4">শিফট খুললে ক্যাশ / ফোনে পেমেন্ট / wallet আলাদা করে জমা হতে থাকে। শিফট বন্ধ করার সময় expected cash লাইন ধরে ধরে দেখায় — ঘাটতি থাকলে তখনই ধরা পড়ে, মাস শেষে না।</p>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 6 — Shift close drawer panel, 1440px -->
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/shifts</span></div>
+          <img src="assets/img/shot-6-shift-drawer.svg" width="1440" height="900" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt6"
+               alt="শিফট বন্ধ করার প্যানেল — expected cash এর লাইন ধরে হিসাব আর গোনা টাকার সাথে পার্থক্য।">
+        </div>
+        <p class="shot-cap" data-i18n="shots.cap6">স্ক্রিনশট ৬ — Shifts ড্রয়ার প্যানেল (১৪৪০px)</p>
+      </div>
+    </article>
+
+    <!-- 5. expenses + sheets -->
+    <article class="feature reveal">
+      <div>
+        <span class="feature-tag num">05</span>
+        <h3 data-i18n="f5.h">খরচের খাতা আর দিন-মাসের হিসাব</h3>
+        <p data-i18n="f5.p">কারেন্ট, ইন্টারনেট, বেতন, গেম, স্ন্যাকস, মেরামত — ক্যাটাগরি ধরে খরচ লেখা থাকে, তারিখ দিয়ে ফিল্টার করা যায়। ক্যাশে দেওয়া খরচ সরাসরি খোলা ড্রয়ার থেকে কেটে যায়।</p>
+        <p data-i18n="p2.f5">দিনের শিটে: ডিভাইস টাইপ অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের ওঠানামা, টাকা কীভাবে এল (ক্যাশ / ফোন / wallet), আর কত বাকি রইল। মাসের শিটে মাসের প্রতিটা দিন — সেশন, ঘণ্টা, আয়, খরচ, নিট লাভ।</p>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 4 — Daily summary sheet, 1440px -->
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/reports/daily</span></div>
+          <img src="assets/img/shot-4-daily-summary.svg" width="1440" height="900" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt4"
+               alt="দিনের সামারি শিট — ডিভাইস অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের হিসাব আর পেমেন্টের ভাগ।">
+        </div>
+        <p class="shot-cap" data-i18n="shots.cap4">স্ক্রিনশট ৪ — দিনের সামারি শিট (১৪৪০px)</p>
+      </div>
+    </article>
+
+    <!-- 6. customers -->
+    <article class="feature reverse reveal">
+      <div>
+        <span class="feature-tag num">06</span>
+        <h3 data-i18n="f6.h">নিয়মিত কাস্টমার আর অগ্রিম ব্যালান্স</h3>
+        <p data-i18n="p1.f6">অগ্রিম টপ-আপের প্যাকেজ আপনি নিজে ঠিক করেন — ৳৫০০ দিলে ৳৬০০ ব্যালান্স। মেম্বারশিপ টায়ার থাকলে তার ছাড় নিজে থেকেই বসে যায়।</p>
+        <p data-i18n="p2.f6">প্রতিটা কাস্টমারের কতবার এসেছে, সব মিলিয়ে কত খরচ করেছে আর এখন ব্যালান্স কত — সব এক জায়গায়। ডিভাইসে ঝোলানো QR কোড স্ক্যান করে কাস্টমার নিজের ফোন থেকেই চেক-ইন করতে পারে।</p>
+        <ul class="chips">
+          <li data-i18n="f6.c1">Wallet টপ-আপ</li>
+          <li data-i18n="f6.c2">মেম্বারশিপ টায়ার</li>
+          <li data-i18n="f6.c3">অগ্রিম বুকিং</li>
+          <li data-i18n="f6.c4">QR চেক-ইন</li>
+        </ul>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 7 — public QR check-in page, capture at 390px (phone) -->
+        <div class="frame frame-phone">
+          <div class="frame-bar" aria-hidden="true"><span class="frame-url">cafetrack.app/c/ps5-03</span></div>
+          <img src="assets/img/shot-7-qr-checkin.svg" width="390" height="844" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt7"
+               alt="ফোনে QR চেক-ইন পেজ — কাস্টমার নিজের ফোন থেকে ডিভাইসে চেক-ইন করছে।">
+        </div>
+        <p class="shot-cap" data-i18n="shots.cap7">স্ক্রিনশট ৭ — QR চেক-ইন পেজ (৩৯০px ফোন)</p>
+      </div>
+    </article>
+
+    <!-- 7. analytics -->
+    <article class="feature reveal">
+      <div>
+        <span class="feature-tag num">07</span>
+        <h3 data-i18n="f7.h">কখন ভিড় হয়, কোন ডিভাইস টাকা আনে</h3>
+        <p data-i18n="p1.f7">সপ্তাহের ৭ দিন × ২৪ ঘণ্টার একটা হিটম্যাপ দেখিয়ে দেয় আসলে কখন ক্যাফে ভরে। কোন ডিভাইস কত সময় চলল, তার ইউটিলাইজেশন বার পাশেই।</p>
+        <p data-i18n="p2.f7">গ্রস প্রফিট, আয় আর ঘণ্টার চার্ট, সবচেয়ে বেশি আয় করা ডিভাইস আর সবচেয়ে বেশি খরচ করা কাস্টমারের তালিকা — নতুন ডিভাইস কেনার আগে এই তথ্যগুলোই কাজে লাগে।</p>
+      </div>
+      <div class="feature-media">
+        <!-- SCREENSHOT 5 — Analytics heatmap, 1440px -->
+        <div class="frame">
+          <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/analytics</span></div>
+          <img src="assets/img/shot-5-heatmap.svg" width="1440" height="900" loading="lazy" decoding="async"
+               data-i18n-attr="alt:shots.alt5"
+               alt="অ্যানালিটিক্স — ৭ দিন × ২৪ ঘণ্টার পিক আওয়ার হিটম্যাপ আর ডিভাইস ইউটিলাইজেশন বার।">
+        </div>
+        <p class="shot-cap" data-i18n="shots.cap5">স্ক্রিনশট ৫ — পিক আওয়ার হিটম্যাপ (১৪৪০px)</p>
+      </div>
+    </article>
+
+    <!-- extras -->
+    <div class="cards reveal" style="margin-top:8px">
+      <article class="card">
+        <h3 class="card-q" data-i18n="x1.h">স্টাফ অ্যাকাউন্ট আর রোল</h3>
+        <p data-i18n="x1.p">owner / admin / staff — আলাদা লগইন, আলাদা ক্ষমতা। কে কী করল, সব activity log এ।</p>
+      </article>
+      <article class="card">
+        <h3 class="card-q" data-i18n="x2.h">একাধিক ব্রাঞ্চ</h3>
+        <p data-i18n="x2.p">এক অ্যাকাউন্টের নিচে প্রতিটা ব্রাঞ্চের হিসাব আলাদা থাকে।</p>
+      </article>
+      <article class="card">
+        <h3 class="card-q" data-i18n="x3.h">অগ্রিম বুকিং</h3>
+        <p data-i18n="x3.p">আগে থেকে বুক করা স্লট কাস্টমার এলে এক চাপে লাইভ সেশন হয়ে যায়।</p>
+      </article>
+      <article class="card">
+        <h3 class="card-q" data-i18n="x4.h">CSV এক্সপোর্ট</h3>
+        <p data-i18n="x4.p">ইনভয়েস CSV নামিয়ে নিজের Excel এ নিয়ে যেতে পারেন, যখন খুশি।</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= HOW IT WORKS ======================= -->
+<section id="how" aria-labelledby="how-h" class="early">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow" data-i18n="how.eyebrow">শুরু করা</span>
+      <h2 class="sec-title" id="how-h" data-i18n="how.h">কিভাবে চলে</h2>
+      <p class="sec-lede" data-i18n="how.lede">সেটআপের কাজটা আমি নিজে বসে করে দিই। আপনার স্টাফকে শুধু দুইটা বাটন চিনলেই হয়।</p>
+    </div>
+    <div class="steps">
+      <article class="step reveal">
+        <div class="step-n num" data-i18n="how.n1">১</div>
+        <h3 data-i18n="how.h1">আপনার ডিভাইস আর রেট বসিয়ে দিই</h3>
+        <p data-i18n="how.p1">আপনার ক্যাফের প্রতিটা ডিভাইস, কন্ট্রোলার অনুযায়ী রেট, রাউন্ডিং — আমি নিজে বসে সেট করে দিই। আপনাকে কিছু টাইপ করতে হয় না।</p>
+      </article>
+      <article class="step reveal">
+        <div class="step-n num" data-i18n="how.n2">২</div>
+        <h3 data-i18n="how.h2">স্টাফ শুধু Start আর End চাপে</h3>
+        <p data-i18n="how.p2">কাস্টমার বসলে Start session, উঠলে End session। বিল সিস্টেম নিজেই বের করে দেয়।</p>
+      </article>
+      <article class="step reveal">
+        <div class="step-n num" data-i18n="how.n3">৩</div>
+        <h3 data-i18n="how.h3">দিনশেষে হিসাব রেডি</h3>
+        <p data-i18n="how.p3">রাতে দোকান বন্ধ করার সময় দিনের শিট তৈরি — কত আয়, কত খরচ, ড্রয়ারে কত থাকার কথা। মনে করে করে লেখার দরকার নেই।</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= WHO IT'S FOR ======================= -->
+<section id="who" aria-labelledby="who-h">
+  <div class="wrap center reveal">
+    <h2 class="sec-title" id="who-h" data-i18n="who.h">কাদের জন্য</h2>
+    <ul class="strip">
+      <li data-i18n="who.1">গেমিং ক্যাফে</li>
+      <li data-i18n="who.2">PlayStation লাউঞ্জ</li>
+      <li data-i18n="who.3">একাধিক ব্রাঞ্চ</li>
+      <li data-i18n="who.4">ছোট ক্যাফে (৪+ ডিভাইস)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================= PRICING ======================= -->
+<!-- TODO (Efat): you have not fixed a price yet, so this renders the
+     "first 5 cafes free" card exactly as your brief specified. When you
+     decide, replace this block with two or three cards and update the
+     pricing.* keys in the TRANSLATIONS object below. -->
+<section id="pricing" aria-labelledby="pricing-h" class="early">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow" data-i18n="pricing.eyebrow">প্রাইসিং</span>
+      <h2 class="sec-title" id="pricing-h" data-i18n="pricing.h">খরচ কত পড়বে</h2>
+      <p class="sec-lede" data-i18n="pricing.lede">লুকানো কিছু নেই। সেটআপের জন্য আলাদা কোনো ফি নেই।</p>
+    </div>
+    <div class="price-wrap reveal">
+      <div class="price-card">
+        <span class="price-badge" data-i18n="pricing.badge">শুরুর অফার</span>
+        <h3 class="price-amount" data-i18n="pricing.amount">প্রথম ৫টি ক্যাফের জন্য ফ্রি</h3>
+        <p style="color:var(--fg-2); margin:0" data-i18n="pricing.sub">কথা বলে ঠিক করব</p>
+        <ul class="price-list">
+          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l1">পুরো সিস্টেম, কোনো ফিচার বন্ধ রাখা নেই</span></li>
+          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l2">সেটআপ আমি করে দিই — ফ্রি</span></li>
+          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l3">স্টাফকে শিখিয়ে দেওয়াও এর মধ্যে</span></li>
+          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l4">সমস্যা হলে সরাসরি আমাকে WhatsApp করবেন</span></li>
+        </ul>
+        <a class="btn btn-wa js-wa" href="#contact" style="width:100%">
+          <span data-i18n="pricing.cta">WhatsApp এ কথা বলি</span>
+        </a>
+        <p class="price-foot" data-i18n="pricing.foot">দাম নিয়ে এখনো কিছু চূড়ান্ত করিনি — প্রথম ক্যাফেগুলোর সাথে বসেই ঠিক করব।</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= BE AN EARLY CAFE ======================= -->
+<section id="early" aria-labelledby="early-h">
+  <div class="wrap early-grid">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="early.eyebrow">সৎ কথা</span>
+      <h2 class="sec-title" id="early-h" data-i18n="early.h">শুরুর ক্যাফে হয়ে যান</h2>
+      <p class="sec-lede" data-i18n="early.p1">CafeTrack নতুন। এটা আমি নিজের ক্যাফের জন্য বানিয়েছি, কারণ খাতা আর Excel দিয়ে হিসাব মিলছিল না। এখন অন্য ক্যাফের জন্য খুলে দিচ্ছি।</p>
+      <p class="sec-lede" data-i18n="early.p2">তাই এই পেজে আপনি কোনো কাস্টমারের প্রশংসা, কোনো রেটিং বা "৫০০+ ক্যাফে ব্যবহার করছে" জাতীয় কথা পাবেন না — কারণ সেগুলো এখনো সত্যি না। যেদিন হবে, সেদিন লিখব।</p>
+      <p class="sec-lede" data-i18n="early.p3">এখন যারা শুরু করবেন, তাদের কাছে আমি একটা জিনিস চাই: সত্যি কথা। কী কাজে লাগছে, কোথায় আটকাচ্ছেন, কী থাকলে ভালো হতো।</p>
+    </div>
+    <ul class="early-list reveal">
+      <li>
+        <svg class="tick" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+        <div><strong data-i18n="early.i1h">সেটআপ ফ্রি, আমি নিজে করে দিই</strong><span data-i18n="early.i1p">আপনার ডিভাইস, রেট, স্টাফ অ্যাকাউন্ট — সব বসিয়ে দিয়ে যাব।</span></div>
+      </li>
+      <li>
+        <svg class="tick" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+        <div><strong data-i18n="early.i2h">সরাসরি আমার সাথে যোগাযোগ</strong><span data-i18n="early.i2p">কোনো সাপোর্ট টিকিট না, কোনো কল সেন্টার না। আমার WhatsApp।</span></div>
+      </li>
+      <li>
+        <svg class="tick" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+        <div><strong data-i18n="early.i3h">আপনার কথায় সিস্টেম বদলাবে</strong><span data-i18n="early.i3p">শুরুর ক্যাফেগুলো যা বলবে, সেটা ধরেই পরের ফিচার ঠিক হবে।</span></div>
+      </li>
+      <li>
+        <svg class="tick" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+        <div><strong data-i18n="early.i4h">পছন্দ না হলে ছেড়ে দেবেন</strong><span data-i18n="early.i4p">কোনো চুক্তি নেই। আপনার ডাটা CSV তে নামিয়ে নিয়ে যেতে পারবেন।</span></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================= FAQ ======================= -->
+<!-- TODO (Efat): confirm every one of these eight answers. They are honest
+     first drafts written from your brief — each one is marked below. -->
+<section id="faq" aria-labelledby="faq-h" class="early">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow" data-i18n="faq.eyebrow">প্রশ্ন-উত্তর</span>
+      <h2 class="sec-title" id="faq-h" data-i18n="faq.h">যা সবাই জিজ্ঞেস করেন</h2>
+    </div>
+    <div class="faq-list">
+      <!-- TODO: confirm — offline behaviour -->
+      <details class="reveal"><summary data-i18n="faq.q1">ইন্টারনেট ছাড়া চলবে?</summary>
+        <p class="faq-a" data-i18n="faq.a1">না। CafeTrack ব্রাউজারে চলে, তাই ইন্টারনেট লাগবে। মোবাইল ডাটাতেও চলে — খুব বেশি ডাটা টানে না। লাইন কিছুক্ষণের জন্য গেলে ফিরে এলে আবার আগের জায়গা থেকেই কাজ করবেন।</p></details>
+      <!-- TODO: confirm — importing old records -->
+      <details class="reveal"><summary data-i18n="faq.q2">আমার পুরনো হিসাব কি ঢোকানো যাবে?</summary>
+        <p class="faq-a" data-i18n="faq.a2">আপনার পুরনো খাতা বা Excel দেখে আমরা কথা বলে ঠিক করব কতটুকু ঢোকানো দরকার। সাধারণত নিয়মিত কাস্টমার আর তাদের ব্যালান্স ঢোকালেই কাজ চলে যায় — পুরনো প্রতিটা সেশন তুলতে হয় না।</p></details>
+      <!-- TODO: confirm — staff deleting data -->
+      <details class="reveal"><summary data-i18n="faq.q3">স্টাফ কি ডাটা মুছে দিতে পারবে?</summary>
+        <p class="faq-a" data-i18n="faq.a3">না। staff রোল দিয়ে বিল void করা যায় না, ডিসকাউন্টও দেওয়া যায় না — সিস্টেম আটকে দেয়। যা কিছু হয় তার সবই activity log এ কে করল সহ লেখা থাকে, আর সেটা owner হিসেবে আপনি দেখতে পান।</p></details>
+      <!-- TODO: confirm — phone support -->
+      <details class="reveal"><summary data-i18n="faq.q4">ফোনে চলবে?</summary>
+        <p class="faq-a" data-i18n="faq.a4">হ্যাঁ, ফোনের ব্রাউজারে খুললেই চলবে — ফোন, ট্যাব, ল্যাপটপ সবেতেই। কোনো অ্যাপ ইনস্টল করতে হয় না; এটা একটা ওয়েবসাইট যেটা ফোনে ভালোভাবে চলার মতো করে বানানো।</p></details>
+      <!-- TODO: confirm — multiple branches -->
+      <details class="reveal"><summary data-i18n="faq.q5">একাধিক ব্রাঞ্চ চালানো যাবে?</summary>
+        <p class="faq-a" data-i18n="faq.a5">যাবে। এক অ্যাকাউন্টের নিচে একাধিক ব্রাঞ্চ রাখা যায় এবং প্রতিটার সেশন, খরচ আর হিসাব আলাদা থাকে। ব্রাঞ্চ বদলে বদলে দেখতে পারবেন।</p></details>
+      <!-- TODO: confirm — where data lives (server/region) -->
+      <details class="reveal"><summary data-i18n="faq.q6">ডাটা কোথায় থাকে?</summary>
+        <p class="faq-a" data-i18n="faq.a6">আপনার ক্যাফের ডাটা সার্ভারে থাকে, আপনার অ্যাকাউন্টের নিচে আলাদা করে — অন্য কোনো ক্যাফে সেটা দেখতে পায় না। ঠিক কোন সার্ভারে আর ব্যাকআপ কীভাবে হয়, ডেমোতে খুলে বলব।</p></details>
+      <!-- TODO: confirm — training time -->
+      <details class="reveal"><summary data-i18n="faq.q7">শিখতে কত সময় লাগবে?</summary>
+        <p class="faq-a" data-i18n="faq.a7">স্টাফের জন্য কার্যত দুইটা বাটন — Start session আর End session। বসিয়ে দেখিয়ে দিলে এক সন্ধ্যাতেই ধরে ফেলে। রিপোর্ট আর সেটিংসের দিকটা আপনাকে আলাদা করে দেখিয়ে দেব।</p></details>
+      <!-- TODO: confirm — data export on leaving -->
+      <details class="reveal"><summary data-i18n="faq.q8">বন্ধ করতে চাইলে ডাটা পাব?</summary>
+        <p class="faq-a" data-i18n="faq.a8">পাবেন। ইনভয়েস CSV এক্সপোর্ট করা যায়, আর ছেড়ে দেওয়ার সময় আপনার হিসাবের ডাটা বের করে দেব। আটকে রাখার কোনো ইচ্ছা নেই।</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FINAL CTA ======================= -->
+<section id="contact" class="cta" aria-labelledby="cta-h">
+  <div class="wrap cta-grid">
+    <div class="reveal">
+      <h2 class="sec-title" id="cta-h" data-i18n="cta.h">১০ মিনিটের একটা ডেমো দেখে নিন</h2>
+      <p class="sec-lede" data-i18n="cta.lede">WhatsApp এ মেসেজ দিন, সময় ঠিক করে আপনার ক্যাফের ডিভাইস ধরে ধরে দেখিয়ে দেব। কেনার কথা এখনই বলতে হবে না।</p>
+      <a class="btn btn-wa js-wa" href="#" style="margin-top:22px">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.5-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l2 1c.3.1.4.2.5.3.1.2.1.6-.1 1.1Z"/></svg>
+        <span data-i18n="cta.btn">WhatsApp এ ডেমো নিন</span>
+      </a>
+      <!-- TODO (Efat): put your real number in CONFIG.whatsapp below; this line updates itself from it -->
+      <a class="phone-line js-tel" href="#">
+        <span style="color:var(--fg-3)" data-i18n="cta.callus">সরাসরি ফোন করুন</span>
+        <b class="num" id="phone-text">+880 1XXX-XXXXXX</b>
+      </a>
+    </div>
+
+    <div class="contact-box reveal">
+      <h3 style="margin-bottom:.2em" data-i18n="form.h">অথবা নাম্বার রেখে যান</h3>
+      <p style="color:var(--fg-2); font-size:.96rem" data-i18n="form.lede">আমি নিজে ফোন দেব।</p>
+      <form id="contact-form" novalidate>
+        <div class="field">
+          <label for="f-name" data-i18n="form.name">আপনার নাম</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required
+                 data-i18n-attr="placeholder:form.namePh" placeholder="যেমন: রাকিব হাসান">
+        </div>
+        <div class="field">
+          <label for="f-cafe" data-i18n="form.cafe">ক্যাফের নাম</label>
+          <input id="f-cafe" name="cafe" type="text" required
+                 data-i18n-attr="placeholder:form.cafePh" placeholder="যেমন: Game n Chill">
+        </div>
+        <div class="field">
+          <label for="f-phone" data-i18n="form.phone">ফোন নাম্বার</label>
+          <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required
+                 class="num" data-i18n-attr="placeholder:form.phonePh" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="field">
+          <label for="f-area" data-i18n="form.area">এলাকা</label>
+          <input id="f-area" name="area" type="text"
+                 data-i18n-attr="placeholder:form.areaPh" placeholder="যেমন: উত্তরা, ঢাকা">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%" data-i18n="form.submit">পাঠিয়ে দিন</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        <p class="form-note" data-i18n="form.note">তাড়া থাকলে সরাসরি WhatsApp করুন — সেটাই দ্রুততম।</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-grid">
+      <div>
+        <a class="brand" href="#top" style="margin-bottom:12px" aria-label="CafeTrack">
+          <span class="brand-mark" aria-hidden="true"><span></span></span> CafeTrack
+        </a>
+        <p style="max-width:38ch" data-i18n="ftr.desc">বাংলাদেশের গেমিং ক্যাফের জন্য বানানো ম্যানেজমেন্ট সিস্টেম। ডিভাইস, সেশন, বিল, খরচ আর লাভ — এক জায়গায়।</p>
+      </div>
+      <div>
+        <h4 data-i18n="ftr.pages">পেজ</h4>
+        <ul>
+          <li><a href="#features" data-i18n="nav.features">ফিচার</a></li>
+          <li><a href="#how" data-i18n="nav.how">কিভাবে চলে</a></li>
+          <li><a href="#pricing" data-i18n="nav.pricing">প্রাইসিং</a></li>
+          <li><a href="#faq" data-i18n="nav.faq">প্রশ্ন</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-i18n="ftr.contact">যোগাযোগ</h4>
+        <ul>
+          <!-- TODO (Efat): fill CONFIG.facebook / CONFIG.whatsapp / CONFIG.email below -->
+          <li><a href="#" id="fb-link" rel="noopener" target="_blank" data-i18n="ftr.fb">Facebook পেজ</a></li>
+          <li><a href="#" class="js-tel num" id="phone-text-2">+880 1XXX-XXXXXX</a></li>
+          <li><a href="#" id="email-link">hello@example.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr-bottom">
+      <span class="num">© <span id="year">2026</span></span> CafeTrack. <span data-i18n="ftr.rights">সব অধিকার সংরক্ষিত।</span>
+    </div>
+  </div>
+</footer>
+
+<!-- floating WhatsApp -->
+<a class="fab js-wa" href="#contact" id="fab" data-i18n-attr="aria-label:a11y.fab" aria-label="WhatsApp এ ডেমো নিন">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.6 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.5-4.1-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.4.2.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l2 1c.3.1.4.2.5.3.1.2.1.6-.1 1.1Z"/></svg>
+  <span class="fab-txt" data-i18n="fab">ডেমো নিন</span>
+</a>
+
+<script id="ld-json" type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"SoftwareApplication",
+      "name":"CafeTrack",
+      "applicationCategory":"BusinessApplication",
+      "operatingSystem":"Web browser",
+      "description":"Gaming cafe management system for Bangladeshi gaming cafes: live device floor board, per-controller hourly pricing, itemised billing and receipts, cash drawer and shifts, expenses, daily and monthly profit sheets, customer wallets and analytics.",
+      "inLanguage":["bn","en"],
+      "url":"https://cafetrack.example.com/"
+    },
+    {
+      "@type":"LocalBusiness",
+      "name":"CafeTrack",
+      "description":"Gaming cafe management system built in Bangladesh.",
+      "url":"https://cafetrack.example.com/",
+      "areaServed":"BD"
+    }
+  ]
+}
+</script>
+<!-- TODO (Efat): once CONFIG below has your real phone/email/domain, the script
+     patches "telephone", "email" and "url" into this JSON-LD automatically.
+     Nothing here is invented — empty fields simply stay out. -->
+
+<script>
+/* ==================================================================
+   1) CONFIG — the only things you must fill in.
+   ================================================================== */
+const CONFIG = {
+  // WhatsApp number in 8801XXXXXXXXX form — no +, no spaces.
+  // TODO (Efat): REQUIRED. Nothing else works until this is real.
+  whatsapp: "8801XXXXXXXXX",
+
+  // How the number is shown as readable text.
+  // TODO (Efat): e.g. "+880 1712-345678"
+  phoneDisplay: "+880 1XXX-XXXXXX",
+
+  // TODO (Efat): your Facebook page URL, e.g. "https://facebook.com/cafetrackbd"
+  facebook: "",
+
+  // TODO (Efat): the email you want on the page.
+  email: "",
+
+  // TODO (Efat): your domain once it is pointed at this site.
+  site: "https://cafetrack.example.com/",
+
+  // Contact form target. Leave "" and the form falls back to opening
+  // WhatsApp with the four fields already typed out — no data is lost.
+  // TODO (Efat): paste a Formspree endpoint here to collect them by email
+  // instead, e.g. "https://formspree.io/f/xxxxxxxx".
+  // (Netlify Forms works too — see README.md.)
+  formEndpoint: ""
+};
+
+/* ==================================================================
+   2) TRANSLATIONS — edit wording here, never in the markup above.
+      Every visible string on the page is a key in this object.
+   ================================================================== */
+const T = {
+  bn: {
+    "html.title":"CafeTrack — গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম",
+    "html.desc":"কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। বাংলাদেশের গেমিং ক্যাফের জন্য বানানো।",
+    "skip":"মূল কনটেন্টে যান",
+
+    "nav.features":"ফিচার", "nav.how":"কিভাবে চলে", "nav.pricing":"প্রাইসিং",
+    "nav.faq":"প্রশ্ন", "nav.wa":"WhatsApp করুন",
+
+    "a11y.langGroup":"ভাষা নির্বাচন", "a11y.theme":"থিম বদলান", "a11y.menu":"মেনু",
+    "a11y.fab":"WhatsApp এ ডেমো নিন",
+
+    "hero.eyebrow":"গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম",
+    "hero.h1":"আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি হিসাবে?",
+    "hero.sub":"কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। খাতা আর Excel এর দিন শেষ।",
+    "hero.cta1":"ফ্রি ডেমো নিন", "hero.cta2":"ফিচার দেখুন",
+    "hero.note":"Game n Chill এর জন্য বানানো, এখন সব ক্যাফের জন্য",
+
+    "problem.eyebrow":"চেনা সমস্যা",
+    "problem.h":"রাতে ক্যাশ গুনে মেলাতে গিয়ে এই প্রশ্নগুলো আসে না?",
+    "problem.lede":"এগুলো কোনো ফিচার লিস্ট না। প্রতিদিন ক্যাফে চালাতে গিয়ে যেগুলোর উত্তর হাতে থাকে না।",
+    "problem.q1":"কোন বুথে কত ইনকাম, বলতে পারেন?",
+    "problem.a1":"চার নম্বর PS5 টা সারাদিন চলে, নাকি পড়ে থাকে — অনুমান ছাড়া বলার উপায় নেই।",
+    "problem.q2":"স্টাফের ক্যাশের হিসাব মিলছে তো?",
+    "problem.a2":"টাকা স্টাফের হাতে ওঠে। দিনশেষে যা জমা পড়ল, সেটাই ঠিক কিনা মিলিয়ে দেখার কিছু নেই।",
+    "problem.q3":"খরচ বাদে আসল লাভ কত?",
+    "problem.a3":"কত টাকা ঢুকল সেটা জানেন। কিন্তু কারেন্ট, ইন্টারনেট, বেতন, স্ন্যাকস বাদ দিয়ে কী থাকল?",
+    "problem.q4":"কাস্টমার সময় পার করে ফেললে কে খেয়াল রাখে?",
+    "problem.a4":"এক ঘণ্টার বুকিং দেড় ঘণ্টা হয়ে যায়। ব্যস্ত সন্ধ্যায় কেউ ঘড়ি দেখে না।",
+
+    "features.eyebrow":"সিস্টেম যা করে", "features.h":"যা যা আছে",
+    "features.lede":"ব্রাউজারে চলে — ফোন, ট্যাব বা ল্যাপটপ। কিছু ইনস্টল করতে হয় না।",
+
+    "f1.h":"পুরো ফ্লোর এক স্ক্রিনে, প্রতি ৫ সেকেন্ডে আপডেট",
+    "f1.p":"প্রতিটা ডিভাইসের একটা টাইল — ফাঁকা না চলছে, কে খেলছে, কত সময় হলো, এই মুহূর্তে বিল কত, আর বুক করা সময়ের কতটুকু বাকি।",
+    "p2.f1":"ফাঁকা টাইলে Start session, চলন্ত টাইলে End session। স্টাফের এর বেশি কিছু শেখার নেই।",
+    "f1.c1":"লাইভ টাইমার", "f1.c2":"চলন্ত বিল", "f1.c3":"সময় শেষের প্রোগ্রেস বার",
+
+    "f2.h":"কন্ট্রোলার অনুযায়ী রেট — যেভাবে আপনি আসলে চার্জ করেন",
+    "f2.p":"১ কন্ট্রোলার এক রেট, ২ কন্ট্রোলার আরেক রেট — আর সেটা প্রতিটা ডিভাইসের জন্য আলাদা করে বসানো যায়। PS5 Pro আর PS4 এর দাম এক হওয়ার দরকার নেই।",
+    "p2.f2":"মিনিটে বিল হবে নাকি ১৫/৩০/৬০ মিনিটের ব্লকে উঠবে, আর শেষ অঙ্কটা ৳৫ না ৳১০ এ রাউন্ড হবে — সব আপনার হাতে।",
+    "f2.r1":"১ কন্ট্রোলার ৳১০০/ঘণ্টা", "f2.r2":"২ কন্ট্রোলার ৳১২০/ঘণ্টা",
+
+    "f3.h":"কাউন্টারে যে অঙ্কটা দেখাবে, সেটাই নেওয়া হবে",
+    "f3.p":"সেশন শেষ করলে টাকা নেওয়ার আগেই পুরো হিসাব সামনে আসে — কত সময় খেলল, কোন ব্লকে উঠল, রেট কত, রাউন্ডিং কত, ডিসকাউন্ট কত, আর বড় করে To collect।",
+    "p2.f3":"স্ক্রিন ছেড়ে না গিয়েই ৮০mm রসিদ প্রিন্ট করুন বা PDF সেভ করুন। কাস্টমারের সাথে অঙ্ক নিয়ে তর্ক করার জায়গা থাকে না।",
+
+    "f4.h":"ডিসকাউন্ট আর ক্যাশ ড্রয়ার আপনার নিয়ন্ত্রণে",
+    "f4.p":"ফ্ল্যাট টাকা বা পার্সেন্টে ছাড় দিতে পারেন শুধু admin। স্টাফ ডিসকাউন্টও দিতে পারবে না, বিল void ও করতে পারবে না — সিস্টেম করতে দেয় না। প্রতিটা ছাড় কারণ আর কে দিল সহ activity log এ লেখা থাকে।",
+    "p2.f4":"শিফট খুললে ক্যাশ / ফোনে পেমেন্ট / wallet আলাদা করে জমা হতে থাকে। শিফট বন্ধ করার সময় expected cash লাইন ধরে ধরে দেখায় — ঘাটতি থাকলে তখনই ধরা পড়ে, মাস শেষে না।",
+
+    "f5.h":"খরচের খাতা আর দিন-মাসের হিসাব",
+    "f5.p":"কারেন্ট, ইন্টারনেট, বেতন, গেম, স্ন্যাকস, মেরামত — ক্যাটাগরি ধরে খরচ লেখা থাকে, তারিখ দিয়ে ফিল্টার করা যায়। ক্যাশে দেওয়া খরচ সরাসরি খোলা ড্রয়ার থেকে কেটে যায়।",
+    "p2.f5":"দিনের শিটে: ডিভাইস টাইপ অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের ওঠানামা, টাকা কীভাবে এল (ক্যাশ / ফোন / wallet), আর কত বাকি রইল। মাসের শিটে মাসের প্রতিটা দিন — সেশন, ঘণ্টা, আয়, খরচ, নিট লাভ।",
+
+    "f6.h":"নিয়মিত কাস্টমার আর অগ্রিম ব্যালান্স",
+    "p1.f6":"অগ্রিম টপ-আপের প্যাকেজ আপনি নিজে ঠিক করেন — ৳৫০০ দিলে ৳৬০০ ব্যালান্স। মেম্বারশিপ টায়ার থাকলে তার ছাড় নিজে থেকেই বসে যায়।",
+    "p2.f6":"প্রতিটা কাস্টমারের কতবার এসেছে, সব মিলিয়ে কত খরচ করেছে আর এখন ব্যালান্স কত — সব এক জায়গায়। ডিভাইসে ঝোলানো QR কোড স্ক্যান করে কাস্টমার নিজের ফোন থেকেই চেক-ইন করতে পারে।",
+    "f6.c1":"Wallet টপ-আপ", "f6.c2":"মেম্বারশিপ টায়ার", "f6.c3":"অগ্রিম বুকিং", "f6.c4":"QR চেক-ইন",
+
+    "f7.h":"কখন ভিড় হয়, কোন ডিভাইস টাকা আনে",
+    "p1.f7":"সপ্তাহের ৭ দিন × ২৪ ঘণ্টার একটা হিটম্যাপ দেখিয়ে দেয় আসলে কখন ক্যাফে ভরে। কোন ডিভাইস কত সময় চলল, তার ইউটিলাইজেশন বার পাশেই।",
+    "p2.f7":"গ্রস প্রফিট, আয় আর ঘণ্টার চার্ট, সবচেয়ে বেশি আয় করা ডিভাইস আর সবচেয়ে বেশি খরচ করা কাস্টমারের তালিকা — নতুন ডিভাইস কেনার আগে এই তথ্যগুলোই কাজে লাগে।",
+
+    "x1.h":"স্টাফ অ্যাকাউন্ট আর রোল",
+    "x1.p":"owner / admin / staff — আলাদা লগইন, আলাদা ক্ষমতা। কে কী করল, সব activity log এ।",
+    "x2.h":"একাধিক ব্রাঞ্চ", "x2.p":"এক অ্যাকাউন্টের নিচে প্রতিটা ব্রাঞ্চের হিসাব আলাদা থাকে।",
+    "x3.h":"অগ্রিম বুকিং", "x3.p":"আগে থেকে বুক করা স্লট কাস্টমার এলে এক চাপে লাইভ সেশন হয়ে যায়।",
+    "x4.h":"CSV এক্সপোর্ট", "x4.p":"ইনভয়েস CSV নামিয়ে নিজের Excel এ নিয়ে যেতে পারেন, যখন খুশি।",
+
+    "how.eyebrow":"শুরু করা", "how.h":"কিভাবে চলে",
+    "how.lede":"সেটআপের কাজটা আমি নিজে বসে করে দিই। আপনার স্টাফকে শুধু দুইটা বাটন চিনলেই হয়।",
+    "how.n1":"১", "how.h1":"আপনার ডিভাইস আর রেট বসিয়ে দিই",
+    "how.p1":"আপনার ক্যাফের প্রতিটা ডিভাইস, কন্ট্রোলার অনুযায়ী রেট, রাউন্ডিং — আমি নিজে বসে সেট করে দিই। আপনাকে কিছু টাইপ করতে হয় না।",
+    "how.n2":"২", "how.h2":"স্টাফ শুধু Start আর End চাপে",
+    "how.p2":"কাস্টমার বসলে Start session, উঠলে End session। বিল সিস্টেম নিজেই বের করে দেয়।",
+    "how.n3":"৩", "how.h3":"দিনশেষে হিসাব রেডি",
+    "how.p3":"রাতে দোকান বন্ধ করার সময় দিনের শিট তৈরি — কত আয়, কত খরচ, ড্রয়ারে কত থাকার কথা। মনে করে করে লেখার দরকার নেই।",
+
+    "who.h":"কাদের জন্য",
+    "who.1":"গেমিং ক্যাফে", "who.2":"PlayStation লাউঞ্জ",
+    "who.3":"একাধিক ব্রাঞ্চ", "who.4":"ছোট ক্যাফে (৪+ ডিভাইস)",
+
+    "pricing.eyebrow":"প্রাইসিং", "pricing.h":"খরচ কত পড়বে",
+    "pricing.lede":"লুকানো কিছু নেই। সেটআপের জন্য আলাদা কোনো ফি নেই।",
+    "pricing.badge":"শুরুর অফার",
+    "pricing.amount":"প্রথম ৫টি ক্যাফের জন্য ফ্রি",
+    "pricing.sub":"কথা বলে ঠিক করব",
+    "pricing.l1":"পুরো সিস্টেম, কোনো ফিচার বন্ধ রাখা নেই",
+    "pricing.l2":"সেটআপ আমি করে দিই — ফ্রি",
+    "pricing.l3":"স্টাফকে শিখিয়ে দেওয়াও এর মধ্যে",
+    "pricing.l4":"সমস্যা হলে সরাসরি আমাকে WhatsApp করবেন",
+    "pricing.cta":"WhatsApp এ কথা বলি",
+    "pricing.foot":"দাম নিয়ে এখনো কিছু চূড়ান্ত করিনি — প্রথম ক্যাফেগুলোর সাথে বসেই ঠিক করব।",
+
+    "early.eyebrow":"সৎ কথা", "early.h":"শুরুর ক্যাফে হয়ে যান",
+    "early.p1":"CafeTrack নতুন। এটা আমি নিজের ক্যাফের জন্য বানিয়েছি, কারণ খাতা আর Excel দিয়ে হিসাব মিলছিল না। এখন অন্য ক্যাফের জন্য খুলে দিচ্ছি।",
+    "early.p2":"তাই এই পেজে আপনি কোনো কাস্টমারের প্রশংসা, কোনো রেটিং বা \"৫০০+ ক্যাফে ব্যবহার করছে\" জাতীয় কথা পাবেন না — কারণ সেগুলো এখনো সত্যি না। যেদিন হবে, সেদিন লিখব।",
+    "early.p3":"এখন যারা শুরু করবেন, তাদের কাছে আমি একটা জিনিস চাই: সত্যি কথা। কী কাজে লাগছে, কোথায় আটকাচ্ছেন, কী থাকলে ভালো হতো।",
+    "early.i1h":"সেটআপ ফ্রি, আমি নিজে করে দিই",
+    "early.i1p":"আপনার ডিভাইস, রেট, স্টাফ অ্যাকাউন্ট — সব বসিয়ে দিয়ে যাব।",
+    "early.i2h":"সরাসরি আমার সাথে যোগাযোগ",
+    "early.i2p":"কোনো সাপোর্ট টিকিট না, কোনো কল সেন্টার না। আমার WhatsApp।",
+    "early.i3h":"আপনার কথায় সিস্টেম বদলাবে",
+    "early.i3p":"শুরুর ক্যাফেগুলো যা বলবে, সেটা ধরেই পরের ফিচার ঠিক হবে।",
+    "early.i4h":"পছন্দ না হলে ছেড়ে দেবেন",
+    "early.i4p":"কোনো চুক্তি নেই। আপনার ডাটা CSV তে নামিয়ে নিয়ে যেতে পারবেন।",
+
+    "faq.eyebrow":"প্রশ্ন-উত্তর", "faq.h":"যা সবাই জিজ্ঞেস করেন",
+    "faq.q1":"ইন্টারনেট ছাড়া চলবে?",
+    "faq.a1":"না। CafeTrack ব্রাউজারে চলে, তাই ইন্টারনেট লাগবে। মোবাইল ডাটাতেও চলে — খুব বেশি ডাটা টানে না। লাইন কিছুক্ষণের জন্য গেলে ফিরে এলে আবার আগের জায়গা থেকেই কাজ করবেন।",
+    "faq.q2":"আমার পুরনো হিসাব কি ঢোকানো যাবে?",
+    "faq.a2":"আপনার পুরনো খাতা বা Excel দেখে আমরা কথা বলে ঠিক করব কতটুকু ঢোকানো দরকার। সাধারণত নিয়মিত কাস্টমার আর তাদের ব্যালান্স ঢোকালেই কাজ চলে যায় — পুরনো প্রতিটা সেশন তুলতে হয় না।",
+    "faq.q3":"স্টাফ কি ডাটা মুছে দিতে পারবে?",
+    "faq.a3":"না। staff রোল দিয়ে বিল void করা যায় না, ডিসকাউন্টও দেওয়া যায় না — সিস্টেম আটকে দেয়। যা কিছু হয় তার সবই activity log এ কে করল সহ লেখা থাকে, আর সেটা owner হিসেবে আপনি দেখতে পান।",
+    "faq.q4":"ফোনে চলবে?",
+    "faq.a4":"হ্যাঁ, ফোনের ব্রাউজারে খুললেই চলবে — ফোন, ট্যাব, ল্যাপটপ সবেতেই। কোনো অ্যাপ ইনস্টল করতে হয় না; এটা একটা ওয়েবসাইট যেটা ফোনে ভালোভাবে চলার মতো করে বানানো।",
+    "faq.q5":"একাধিক ব্রাঞ্চ চালানো যাবে?",
+    "faq.a5":"যাবে। এক অ্যাকাউন্টের নিচে একাধিক ব্রাঞ্চ রাখা যায় এবং প্রতিটার সেশন, খরচ আর হিসাব আলাদা থাকে। ব্রাঞ্চ বদলে বদলে দেখতে পারবেন।",
+    "faq.q6":"ডাটা কোথায় থাকে?",
+    "faq.a6":"আপনার ক্যাফের ডাটা সার্ভারে থাকে, আপনার অ্যাকাউন্টের নিচে আলাদা করে — অন্য কোনো ক্যাফে সেটা দেখতে পায় না। ঠিক কোন সার্ভারে আর ব্যাকআপ কীভাবে হয়, ডেমোতে খুলে বলব।",
+    "faq.q7":"শিখতে কত সময় লাগবে?",
+    "faq.a7":"স্টাফের জন্য কার্যত দুইটা বাটন — Start session আর End session। বসিয়ে দেখিয়ে দিলে এক সন্ধ্যাতেই ধরে ফেলে। রিপোর্ট আর সেটিংসের দিকটা আপনাকে আলাদা করে দেখিয়ে দেব।",
+    "faq.q8":"বন্ধ করতে চাইলে ডাটা পাব?",
+    "faq.a8":"পাবেন। ইনভয়েস CSV এক্সপোর্ট করা যায়, আর ছেড়ে দেওয়ার সময় আপনার হিসাবের ডাটা বের করে দেব। আটকে রাখার কোনো ইচ্ছা নেই।",
+
+    "cta.h":"১০ মিনিটের একটা ডেমো দেখে নিন",
+    "cta.lede":"WhatsApp এ মেসেজ দিন, সময় ঠিক করে আপনার ক্যাফের ডিভাইস ধরে ধরে দেখিয়ে দেব। কেনার কথা এখনই বলতে হবে না।",
+    "cta.btn":"WhatsApp এ ডেমো নিন", "cta.callus":"সরাসরি ফোন করুন",
+
+    "form.h":"অথবা নাম্বার রেখে যান", "form.lede":"আমি নিজে ফোন দেব।",
+    "form.name":"আপনার নাম", "form.namePh":"যেমন: রাকিব হাসান",
+    "form.cafe":"ক্যাফের নাম", "form.cafePh":"যেমন: Game n Chill",
+    "form.phone":"ফোন নাম্বার", "form.phonePh":"01XXXXXXXXX",
+    "form.area":"এলাকা", "form.areaPh":"যেমন: উত্তরা, ঢাকা",
+    "form.submit":"পাঠিয়ে দিন",
+    "form.note":"তাড়া থাকলে সরাসরি WhatsApp করুন — সেটাই দ্রুততম।",
+    "form.err":"নাম, ক্যাফের নাম আর ফোন নাম্বার লাগবে।",
+    "form.ok":"পেয়েছি — শিগগিরই ফোন দেব।",
+    "form.wa":"WhatsApp খুলে দিচ্ছি, শুধু Send চাপুন।",
+    "form.fail":"পাঠানো গেল না। সরাসরি WhatsApp করুন।",
+
+    "shots.cap1":"স্ক্রিনশট ১ — ড্যাশবোর্ডের ফ্লোর বোর্ড (১৪৪০px এ তুলুন)",
+    "shots.cap2":"স্ক্রিনশট ২ — End session ডায়ালগ (১৪৪০px)",
+    "shots.cap3":"স্ক্রিনশট ৩ — Stations স্ক্রিন (১৪৪০px)",
+    "shots.cap4":"স্ক্রিনশট ৪ — দিনের সামারি শিট (১৪৪০px)",
+    "shots.cap5":"স্ক্রিনশট ৫ — পিক আওয়ার হিটম্যাপ (১৪৪০px)",
+    "shots.cap6":"স্ক্রিনশট ৬ — Shifts ড্রয়ার প্যানেল (১৪৪০px)",
+    "shots.cap7":"স্ক্রিনশট ৭ — QR চেক-ইন পেজ (৩৯০px ফোন)",
+    "shots.alt1":"CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।",
+    "shots.alt2":"End session ডায়ালগ — সময়, ব্লক, রেট, রাউন্ডিং, ডিসকাউন্ট আর To collect এর পুরো হিসাব।",
+    "shots.alt3":"Stations স্ক্রিন — একটি ডিভাইসের কন্ট্রোলার অনুযায়ী ঘণ্টার রেট আর রাউন্ডিং সেটিং।",
+    "shots.alt4":"দিনের সামারি শিট — ডিভাইস অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের হিসাব আর পেমেন্টের ভাগ।",
+    "shots.alt5":"অ্যানালিটিক্স — ৭ দিন × ২৪ ঘণ্টার পিক আওয়ার হিটম্যাপ আর ডিভাইস ইউটিলাইজেশন বার।",
+    "shots.alt6":"শিফট বন্ধ করার প্যানেল — expected cash এর লাইন ধরে হিসাব আর গোনা টাকার সাথে পার্থক্য।",
+    "shots.alt7":"ফোনে QR চেক-ইন পেজ — কাস্টমার নিজের ফোন থেকে ডিভাইসে চেক-ইন করছে।",
+
+    "fab":"ডেমো নিন",
+    "ftr.desc":"বাংলাদেশের গেমিং ক্যাফের জন্য বানানো ম্যানেজমেন্ট সিস্টেম। ডিভাইস, সেশন, বিল, খরচ আর লাভ — এক জায়গায়।",
+    "ftr.pages":"পেজ", "ftr.contact":"যোগাযোগ", "ftr.fb":"Facebook পেজ",
+    "ftr.rights":"সব অধিকার সংরক্ষিত।",
+
+    "wa.msg":"আসসালামু আলাইকুম, CafeTrack এর ডেমো দেখতে চাই। আমার ক্যাফে: "
+  },
+
+  en: {
+    "html.title":"CafeTrack — gaming cafe management system",
+    "html.desc":"Every device, every session, every taka — live on one screen. Daily and monthly profit worked out for you. Built for gaming cafes in Bangladesh.",
+    "skip":"Skip to content",
+
+    "nav.features":"Features", "nav.how":"How it works", "nav.pricing":"Pricing",
+    "nav.faq":"FAQ", "nav.wa":"WhatsApp করুন",
+
+    "a11y.langGroup":"Choose language", "a11y.theme":"Switch theme", "a11y.menu":"Menu",
+    "a11y.fab":"Book a demo on WhatsApp",
+
+    "hero.eyebrow":"Gaming cafe management system",
+    "hero.h1":"Run your gaming cafe on numbers, not guesswork.",
+    "hero.sub":"Every device, every session, every taka — live on one screen. Daily and monthly profit worked out for you.",
+    "hero.cta1":"Book a free demo", "hero.cta2":"See the features",
+    "hero.note":"Built for my own cafe. Now open to yours.",
+
+    "problem.eyebrow":"Sound familiar?",
+    "problem.h":"The questions that come up while you count the cash at night",
+    "problem.lede":"Not a feature list. The things you run a cafe on every day without ever having the answer to hand.",
+    "problem.q1":"Which booth earns what — can you say?",
+    "problem.a1":"Is PS5 number four busy all day or sitting idle? Right now there is no way to know beyond a guess.",
+    "problem.q2":"Does the staff's cash actually add up?",
+    "problem.a2":"The money goes into your staff's hands. Whatever gets handed over at closing, there is nothing to check it against.",
+    "problem.q3":"What is the real profit after costs?",
+    "problem.a3":"You know what came in. But what is left after electricity, internet, salaries and snacks?",
+    "problem.q4":"Who notices when a customer runs over?",
+    "problem.a4":"A one-hour booking becomes an hour and a half. On a busy evening nobody is watching the clock.",
+
+    "features.eyebrow":"What the system does", "features.h":"What you get",
+    "features.lede":"Runs in the browser — phone, tablet or laptop. Nothing to install.",
+
+    "f1.h":"The whole floor on one screen, refreshing every 5 seconds",
+    "f1.p":"One tile per device — free or busy, who is playing, how long they have been on, what the bill is right now, and how much of their booked time is left.",
+    "p2.f1":"A free tile has Start session. A busy one has End session. There is nothing more for your staff to learn.",
+    "f1.c1":"Live timer", "f1.c2":"Running bill", "f1.c3":"Time-left progress bar",
+
+    "f2.h":"Per-controller rates — the way you actually charge",
+    "f2.p":"One rate for one controller, another for two — set separately for every device. A PS5 Pro and a PS4 do not have to cost the same.",
+    "p2.f2":"Bill by the minute or round up to a 15 / 30 / 60 minute block, and round the final amount to the nearest ৳5 or ৳10. All of it is your call.",
+    "f2.r1":"1 controller ৳100/hr", "f2.r2":"2 controllers ৳120/hr",
+
+    "f3.h":"The number on the screen is the number you charge",
+    "f3.p":"End a session and the whole calculation appears before any money changes hands — time played, the block it rounded up to, the rate, the rounding, any discount, and To collect in large type.",
+    "p2.f3":"Print an 80mm receipt or save a PDF without leaving the screen. No arguing over arithmetic at the counter.",
+
+    "f4.h":"Discounts and the cash drawer stay under your control",
+    "f4.p":"Only an admin can take a flat amount or a percentage off. Staff cannot discount and cannot void a bill — the system refuses them. Every discount is written to the activity log with the reason and who authorised it.",
+    "p2.f4":"Open a shift and takings collect split by cash / phone payment / wallet. At close the expected-cash arithmetic is shown line by line, so a shortfall shows up that night, not at the end of the month.",
+
+    "f5.h":"An expense ledger, and the daily and monthly sheets",
+    "f5.p":"Electricity, internet, salary, games, snacks, repairs — expenses recorded by category and filterable by date. An expense paid in cash comes straight out of the open drawer.",
+    "p2.f5":"The daily sheet: takings by device type, expenses by category, drawer movements, how the money arrived (cash / phone / wallet) and what is still unpaid. The monthly sheet: every day of the month with sessions, hours, income, expenses and net profit.",
+
+    "f6.h":"Regular customers and prepaid balance",
+    "p1.f6":"You define the top-up packages yourself — pay ৳500, get ৳600 of balance. Membership tiers apply their discount automatically.",
+    "p2.f6":"Visit count, lifetime spend and current balance for every customer, in one place. A printable QR code on each device lets a customer check themselves in from their own phone.",
+    "f6.c1":"Wallet top-ups", "f6.c2":"Membership tiers", "f6.c3":"Advance bookings", "f6.c4":"QR check-in",
+
+    "f7.h":"When you are actually busy, and which device earns",
+    "p1.f7":"A 7 × 24 heatmap shows when the cafe really fills up, with device utilisation bars beside it.",
+    "p2.f7":"Gross profit tiles, income and hours charts, and rankings of the top-earning devices and highest-spending customers — the numbers you want before buying the next console.",
+
+    "x1.h":"Staff accounts and roles",
+    "x1.p":"owner / admin / staff — separate logins, separate powers. Everything anyone does lands in the activity log.",
+    "x2.h":"Multiple branches", "x2.p":"Several branches under one account, each one's books kept separate.",
+    "x3.h":"Advance bookings", "x3.p":"A booked slot turns into a live session in one tap when the customer walks in.",
+    "x4.h":"CSV export", "x4.p":"Export invoices as CSV and take them into your own Excel whenever you like.",
+
+    "how.eyebrow":"Getting started", "how.h":"How it works",
+    "how.lede":"I do the setup myself, sitting with you. Your staff only need to recognise two buttons.",
+    "how.n1":"1", "how.h1":"I set up your devices and rates",
+    "how.p1":"Every device in your cafe, the per-controller rates, the rounding — I sit down and set it up myself. You do not type anything.",
+    "how.n2":"2", "how.h2":"Staff just press Start and End",
+    "how.p2":"Start session when a customer sits down, End session when they get up. The system works out the bill.",
+    "how.n3":"3", "how.h3":"The books are ready at closing",
+    "how.p3":"When you shut for the night the day's sheet is already made — what came in, what went out, what should be in the drawer. Nothing written from memory.",
+
+    "who.h":"Who it's for",
+    "who.1":"Gaming cafes", "who.2":"PlayStation lounges",
+    "who.3":"Multiple branches", "who.4":"Small cafes (4+ devices)",
+
+    "pricing.eyebrow":"Pricing", "pricing.h":"What it costs",
+    "pricing.lede":"Nothing hidden. There is no separate setup fee.",
+    "pricing.badge":"Opening offer",
+    "pricing.amount":"Free for the first 5 cafes",
+    "pricing.sub":"We'll agree the rest over a call",
+    "pricing.l1":"The whole system — no features held back",
+    "pricing.l2":"I do the setup for you, free",
+    "pricing.l3":"Training your staff is included",
+    "pricing.l4":"Something breaks, you WhatsApp me directly",
+    "pricing.cta":"Talk to me on WhatsApp",
+    "pricing.foot":"I have not fixed a price yet — I will work it out together with the first few cafes.",
+
+    "early.eyebrow":"Straight talk", "early.h":"Be an early cafe",
+    "early.p1":"CafeTrack is new. I built it for my own cafe because the khata and the Excel sheet stopped adding up. Now I am opening it to other cafes.",
+    "early.p2":"So you will find no customer quotes, no star ratings and no \"used by 500+ cafes\" on this page — because none of that is true yet. The day it is, I will write it.",
+    "early.p3":"From the cafes who start now I want one thing: the truth. What helps, where you get stuck, what is missing.",
+    "early.i1h":"Free setup, done by me",
+    "early.i1p":"Your devices, your rates, your staff accounts — I put it all in before I leave.",
+    "early.i2h":"A direct line to me",
+    "early.i2p":"No support tickets, no call centre. My WhatsApp.",
+    "early.i3h":"Your feedback changes the system",
+    "early.i3p":"What the early cafes ask for is what gets built next.",
+    "early.i4h":"Walk away if it doesn't suit you",
+    "early.i4p":"No contract. You can export your data to CSV and take it with you.",
+
+    "faq.eyebrow":"FAQ", "faq.h":"What people ask",
+    "faq.q1":"Does it work without internet?",
+    "faq.a1":"No. CafeTrack runs in the browser, so it needs a connection. Mobile data is fine — it does not use much. If the line drops for a while, you carry on from where you were once it comes back.",
+    "faq.q2":"Can my old records be brought in?",
+    "faq.a2":"We look at your khata or Excel together and decide how much is worth bringing in. Usually loading your regular customers and their balances is enough — you do not need to re-enter every past session.",
+    "faq.q3":"Can staff delete data?",
+    "faq.a3":"No. The staff role cannot void a bill and cannot give a discount — the system blocks it. Everything that happens is written to the activity log with who did it, and you see that as the owner.",
+    "faq.q4":"Does it work on a phone?",
+    "faq.a4":"Yes — open it in your phone's browser and it works, on phone, tablet or laptop. There is no app to install; it is a website built to work properly on a phone.",
+    "faq.q5":"Can I run multiple branches?",
+    "faq.a5":"Yes. Several branches sit under one account and each one's sessions, expenses and books stay separate. You can switch between them.",
+    "faq.q6":"Where does the data live?",
+    "faq.a6":"Your cafe's data sits on a server under your own account, kept apart from every other cafe. Exactly which server and how backups run, I will go through with you on the demo.",
+    "faq.q7":"How long does it take to learn?",
+    "faq.a7":"For staff it is effectively two buttons — Start session and End session. Show them once and they have it in an evening. I will take you through the reports and settings separately.",
+    "faq.q8":"If I stop using it, do I get my data?",
+    "faq.a8":"Yes. Invoices export as CSV, and if you leave I will get your records out for you. I have no interest in locking you in.",
+
+    "cta.h":"Take a 10-minute demo",
+    "cta.lede":"Message me on WhatsApp, we pick a time, and I walk you through it against your own cafe's devices. No need to talk about buying anything yet.",
+    "cta.btn":"Book a demo on WhatsApp", "cta.callus":"Or call me directly",
+
+    "form.h":"Or just leave your number", "form.lede":"I will call you myself.",
+    "form.name":"Your name", "form.namePh":"e.g. Rakib Hasan",
+    "form.cafe":"Cafe name", "form.cafePh":"e.g. Game n Chill",
+    "form.phone":"Phone number", "form.phonePh":"01XXXXXXXXX",
+    "form.area":"Area", "form.areaPh":"e.g. Uttara, Dhaka",
+    "form.submit":"Send it",
+    "form.note":"In a hurry? WhatsApp is the fastest way to reach me.",
+    "form.err":"Name, cafe name and phone number are needed.",
+    "form.ok":"Got it — I'll call you shortly.",
+    "form.wa":"Opening WhatsApp — just press Send.",
+    "form.fail":"That didn't send. Please WhatsApp me directly.",
+
+    "shots.cap1":"Screenshot 1 — dashboard floor board (capture at 1440px)",
+    "shots.cap2":"Screenshot 2 — End session dialog (1440px)",
+    "shots.cap3":"Screenshot 3 — Stations screen (1440px)",
+    "shots.cap4":"Screenshot 4 — daily summary sheet (1440px)",
+    "shots.cap5":"Screenshot 5 — peak-hours heatmap (1440px)",
+    "shots.cap6":"Screenshot 6 — Shifts drawer panel (1440px)",
+    "shots.cap7":"Screenshot 7 — QR check-in page (390px phone)",
+    "shots.alt1":"CafeTrack dashboard floor board — a tile per device showing who is playing, elapsed time and the running bill.",
+    "shots.alt2":"End session dialog — time played, block, rate, rounding, discount and the To collect total.",
+    "shots.alt3":"Stations screen — a device's hourly rates by controller count and its rounding settings.",
+    "shots.alt4":"Daily summary sheet — income by device, expenses by category, drawer movements and the payment split.",
+    "shots.alt5":"Analytics — the 7 × 24 peak-hours heatmap and device utilisation bars.",
+    "shots.alt6":"Shift close panel — the expected-cash arithmetic line by line against the counted cash.",
+    "shots.alt7":"QR check-in page on a phone — a customer checking themselves in to a device.",
+
+    "fab":"Book a demo",
+    "ftr.desc":"A management system built for gaming cafes in Bangladesh. Devices, sessions, bills, expenses and profit — in one place.",
+    "ftr.pages":"Pages", "ftr.contact":"Contact", "ftr.fb":"Facebook page",
+    "ftr.rights":"All rights reserved.",
+
+    "wa.msg":"আসসালামু আলাইকুম, CafeTrack এর ডেমো দেখতে চাই। আমার ক্যাফে: "
+  }
+};
+
+/* ==================================================================
+   3) BEHAVIOUR — you should not need to touch anything below.
+   ================================================================== */
+(function () {
+  "use strict";
+  const root = document.documentElement;
+  const $  = (s, c) => (c || document).querySelector(s);
+  const $$ = (s, c) => Array.prototype.slice.call((c || document).querySelectorAll(s));
+
+  /* ---------- WhatsApp links ---------- */
+  function waHref(lang, extra) {
+    const msg = T[lang]["wa.msg"] + (extra || "");
+    return "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(msg);
+  }
+  function applyContact(lang) {
+    const href = waHref(lang);
+    $$(".js-wa").forEach(a => { a.href = href; a.rel = "noopener"; a.target = "_blank"; });
+
+    const tel = "+" + CONFIG.whatsapp.replace(/[^\d]/g, "");
+    $$(".js-tel").forEach(a => { a.href = "tel:" + tel; });
+    $$("#phone-text, #phone-text-2").forEach(el => { el.textContent = CONFIG.phoneDisplay; });
+
+    const fb = $("#fb-link");
+    if (CONFIG.facebook) { fb.href = CONFIG.facebook; }
+    else { fb.removeAttribute("href"); fb.style.opacity = ".55"; fb.style.cursor = "default"; }
+
+    // Runs again on every language switch, so tolerate the row already being gone.
+    const em = $("#email-link");
+    if (em) {
+      if (CONFIG.email) { em.href = "mailto:" + CONFIG.email; em.textContent = CONFIG.email; }
+      else { const li = em.closest("li"); (li || em).remove(); }
+    }
+  }
+
+  /* ---------- JSON-LD enrichment (only with real values) ---------- */
+  function patchJsonLd() {
+    const el = $("#ld-json");
+    try {
+      const data = JSON.parse(el.textContent);
+      data["@graph"].forEach(node => {
+        if (CONFIG.site) node.url = CONFIG.site;
+        if (node["@type"] === "LocalBusiness") {
+          if (/^\d{13}$/.test(CONFIG.whatsapp)) node.telephone = "+" + CONFIG.whatsapp;
+          if (CONFIG.email) node.email = CONFIG.email;
+          if (CONFIG.facebook) node.sameAs = [CONFIG.facebook];
+        }
+      });
+      el.textContent = JSON.stringify(data);
+    } catch (e) { /* leave the static block alone */ }
+  }
+
+  /* ---------- i18n ---------- */
+  const LANGS = ["bn", "en"];
+  function setLang(lang, remember) {
+    if (LANGS.indexOf(lang) === -1) lang = "bn";
+    const dict = T[lang];
+
+    $$("[data-i18n]").forEach(el => {
+      const v = dict[el.getAttribute("data-i18n")];
+      if (v != null) el.textContent = v;
+    });
+    $$("[data-i18n-attr]").forEach(el => {
+      el.getAttribute("data-i18n-attr").split(",").forEach(pair => {
+        const bits = pair.split(":");
+        const v = dict[bits[1].trim()];
+        if (v != null) el.setAttribute(bits[0].trim(), v);
+      });
+    });
+
+    root.lang = lang;
+    root.setAttribute("data-lang", lang);
+    document.title = dict["html.title"];
+    $("#meta-desc").setAttribute("content", dict["html.desc"]);
+
+    $("#lang-bn").setAttribute("aria-pressed", String(lang === "bn"));
+    $("#lang-en").setAttribute("aria-pressed", String(lang === "en"));
+
+    applyContact(lang);
+    if (remember) { try { localStorage.setItem("ct-lang", lang); } catch (e) {} }
+  }
+
+  let saved = null;
+  try { saved = localStorage.getItem("ct-lang"); } catch (e) {}
+  const browserLang = (navigator.language || "").toLowerCase().indexOf("bn") === 0 ? "bn" : "en";
+  setLang(saved || browserLang, false);
+
+  $("#lang-bn").addEventListener("click", () => setLang("bn", true));
+  $("#lang-en").addEventListener("click", () => setLang("en", true));
+
+  /* ---------- theme (OS default, header override) ---------- */
+  const sun = 'M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7 1.4-1.4M4.9 19.1l1.4-1.4m0-11.4L4.9 4.9m14.2 14.2-1.4-1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z';
+  const moon = 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z';
+  function currentIsDark() {
+    const set = root.getAttribute("data-theme");
+    if (set) return set === "dark";
+    return !window.matchMedia("(prefers-color-scheme: light)").matches;
+  }
+  function paintThemeIcon() {
+    $("#theme-icon").innerHTML = '<path d="' + (currentIsDark() ? moon : sun) + '"/>';
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", currentIsDark() ? "#0b1020" : "#f7f8fc");
+  }
+  let savedTheme = null;
+  try { savedTheme = localStorage.getItem("ct-theme"); } catch (e) {}
+  if (savedTheme) root.setAttribute("data-theme", savedTheme);
+  paintThemeIcon();
+  $("#theme-btn").addEventListener("click", () => {
+    const next = currentIsDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("ct-theme", next); } catch (e) {}
+    paintThemeIcon();
+  });
+
+  /* ---------- mobile nav ---------- */
+  const burger = $("#burger"), mnav = $("#mobile-nav");
+  burger.addEventListener("click", () => {
+    const open = mnav.classList.toggle("open");
+    burger.setAttribute("aria-expanded", String(open));
+  });
+  $$("#mobile-nav a").forEach(a => a.addEventListener("click", () => {
+    mnav.classList.remove("open");
+    burger.setAttribute("aria-expanded", "false");
+  }));
+
+  /* ---------- reveal on scroll ---------- */
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reveals = $$(".reveal");
+  if (reduce || !("IntersectionObserver" in window)) {
+    reveals.forEach(el => el.classList.add("in"));
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          e.target.style.transitionDelay = Math.min(i * 70, 210) + "ms";
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
+    reveals.forEach(el => io.observe(el));
+  }
+
+  /* ---------- floating WhatsApp after the hero ---------- */
+  const fab = $("#fab"), hero = $(".hero");
+  if ("IntersectionObserver" in window && hero) {
+    new IntersectionObserver(
+      ([e]) => fab.classList.toggle("show", !e.isIntersecting),
+      { threshold: 0 }
+    ).observe(hero);
+  } else {
+    fab.classList.add("show");
+  }
+
+  /* ---------- contact form ---------- */
+  const form = $("#contact-form"), status = $("#form-status");
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const lang = root.lang;
+    const d = {
+      name:  $("#f-name").value.trim(),
+      cafe:  $("#f-cafe").value.trim(),
+      phone: $("#f-phone").value.trim(),
+      area:  $("#f-area").value.trim()
+    };
+    if (!d.name || !d.cafe || !d.phone) {
+      status.style.color = "var(--warn)";
+      status.textContent = T[lang]["form.err"];
+      return;
+    }
+    status.style.color = "var(--money)";
+
+    // No endpoint configured yet: hand the details to WhatsApp instead of
+    // dropping them. Nothing the visitor typed is lost.
+    if (!CONFIG.formEndpoint) {
+      status.textContent = T[lang]["form.wa"];
+      const extra = d.cafe + "\nনাম: " + d.name + "\nফোন: " + d.phone + (d.area ? "\nএলাকা: " + d.area : "");
+      window.open(waHref(lang, extra), "_blank", "noopener");
+      return;
+    }
+    try {
+      const res = await fetch(CONFIG.formEndpoint, {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(d)
+      });
+      if (!res.ok) throw new Error("bad status");
+      status.textContent = T[lang]["form.ok"];
+      form.reset();
+    } catch (e) {
+      status.style.color = "var(--warn)";
+      status.textContent = T[lang]["form.fail"];
+    }
+  });
+
+  /* ---------- misc ---------- */
+  $("#year").textContent = new Date().getFullYear();
+  patchJsonLd();
+
+  if (CONFIG.whatsapp.indexOf("X") !== -1) {
+    console.warn("[CafeTrack] CONFIG.whatsapp is still a placeholder — every WhatsApp button is dead until you set a real number.");
+  }
+})();
+</script>
+</body>
+</html>
