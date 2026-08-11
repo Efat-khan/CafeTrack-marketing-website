@@ -10,7 +10,9 @@ framework, no npm install. Open the file, or upload the folder anywhere.
 index.html                    the whole site (markup + CSS + JS + translations)
 assets/fonts.css              @font-face rules for the self-hosted fonts
 assets/fonts/*.woff2          Noto Sans Bengali + Inter, Bangla/Latin subsets only
-assets/img/*.svg              labelled screenshot placeholders — replace these
+assets/img/shot-*.svg         labelled screenshot placeholders — replace these
+assets/img/video-poster.svg   poster frame for the explainer video
+assets/img/og-image.svg       1200×630 link-preview placeholder
 tools-regenerate-fonts.py     only needed if you change font weights
 ```
 
@@ -28,6 +30,9 @@ Everything you must supply lives in one `CONFIG` object near the bottom of
 | `facebook` | Your Facebook page URL | Optional — left empty, the footer link greys out |
 | `email` | The email you want shown | Optional — left empty, the footer row is removed |
 | `site` | Your domain once pointed here | Required for correct SEO/OG tags |
+| `video.youtubeId` *or* `video.mp4` | The explainer video — a YouTube id, or a path to your own MP4 | Optional — while both are empty the video section hides itself |
+| `pricing.oneTime` | The one-time charge, written how you want it read, e.g. `৳25,000` | Optional — empty reads "কথা বলে ঠিক করব" |
+| `pricing.yearlyHosting` | The yearly hosting charge, e.g. `৳6,000` | Optional — empty reads "কথা বলে ঠিক করব" |
 | `formEndpoint` | Formspree / Netlify Forms target — see §4 | Optional — see the fallback below |
 
 There are also four `TODO (Efat)` comments in the `<head>` where the placeholder
@@ -49,17 +54,35 @@ Per your honesty rules, nothing on this page states a fact I could not verify:
   "Be an early cafe"** section, which says outright that the product is new and
   has no customers yet.
 
-Two things I could not decide for you, so they are marked rather than filled:
+Two things still need your input, so they are marked rather than filled:
 
-1. **Pricing.** You had not fixed a price, so the pricing section renders the
-   single fallback card from your brief — *"প্রথম ৫টি ক্যাফের জন্য ফ্রি — কথা বলে
-   ঠিক করব"* — with the WhatsApp button. When you decide, edit the `pricing.*`
-   keys in the translations object; if you want two or three cards instead of
-   one, the `TODO (Efat)` comment above `<section id="pricing">` marks the spot.
+1. **The two amounts.** The pricing model is now the one you described — a
+   one-time charge to own the product, plus a yearly hosting charge, and no
+   monthly billing at all. The section states that structure plainly; it just
+   does not state figures, because you have not given me any. Put them in
+   `CONFIG.pricing` and they appear. Until then each one reads *"কথা বলে ঠিক
+   করব"* / *"We'll agree it on the call"*, which is true and sells fine.
 2. **FAQ answers.** All eight are honest first drafts, each marked with a
    `TODO: confirm` comment in the markup above it. Read each one and correct it —
    especially **"ডাটা কোথায় থাকে?"**, which currently says the specifics get
    covered on the demo call, because I do not know your hosting arrangement.
+
+### How pricing is worded
+
+One cafe = one product. The card shows the one-time charge and the yearly
+hosting charge side by side with a `+` between them, a green line reading
+*"মাসিক ফি নেই · সেটআপ ফি নেই · লুকানো খরচ নেই"*, and a footnote saying that if
+you have more than one branch, each branch is its own product.
+
+That footnote is an **assumption I made** and you should check it: you said the
+product serves a single cafe rather than a whole system, so I priced the unit as
+one cafe and treated extra branches as extra products. If you actually meant one
+purchase covers every branch an owner has, change `pricing.foot` in the
+translations object and the copy is fixed.
+
+Note this sits alongside the multi-branch feature, which is still described in
+the features list — the software supports branches, the *licence* is per cafe.
+If that is wrong, tell me and I will reconcile the two.
 
 ---
 
@@ -99,6 +122,37 @@ tags in the `<head>`.
 Also update each screenshot's **alt text** if your real screens differ — the alt
 strings are the `shots.alt1`–`shots.alt7` keys in the translations object, and
 they describe what the screen shows for anyone who cannot see the image.
+
+---
+
+## 2b. The explainer video
+
+There is a video section between the problem cards and the features, built for
+exactly the 90-second walkthrough I suggested instead of a public demo login.
+
+**To switch it on**, set one of these in `CONFIG.video`:
+
+- `youtubeId: "dQw4w9WgXcQ"` — just the id from the `watch?v=` URL, or
+- `mp4: "assets/cafetrack-demo.mp4"` — your own file dropped in the repo.
+
+While **both are empty the entire section stays hidden**, so nobody ever meets
+a play button that does nothing. A console warning reminds you it is off.
+
+**It is a facade player.** Only the poster image loads with the page — nothing
+is requested from YouTube until a visitor actually clicks play. That keeps the
+3G budget intact and means no visitor is tracked by YouTube before they have
+chosen anything (the embed uses `youtube-nocookie.com`).
+
+**What to record**, in this order — it mirrors how the page argues:
+
+1. The floor board with a few devices busy.
+2. Starting a session on a free device.
+3. Ending it, with the itemised bill and **To collect** on screen.
+4. The daily summary sheet at closing.
+
+Then replace `assets/img/video-poster.svg` with a 1280×720 frame from the video
+(name it `video-poster.jpg` and update `CONFIG.video.poster`). Update the
+`video.posterAlt` translation key if your recording shows something different.
 
 ---
 
@@ -177,6 +231,23 @@ languages:
   conjuncts render correctly. Noto is in *both* font stacks on purpose: the
   header button stays "WhatsApp করুন" even in English mode, and Inter has no
   Bengali glyphs, so without that the label would drop to a system serif.
+
+### The palette
+
+The site uses the dark crimson scheme you asked for, matching the reference you
+sent: a near-black warm background (`#0a0508`) with a red bloom behind the hero,
+crimson (`#e8192f`) as the single primary accent, and a magenta→violet ramp
+(`#ff2d55 → #d21ea8 → #8b2ae0`) used sparingly — only on the pricing rows, the
+video panel border, and the underline under the red word in a heading. Emerald
+stays for money and "no monthly fee", amber only for warnings. Every colour is a
+CSS variable at the top of the `<style>` block, so the whole scheme is about ten
+lines to change.
+
+**WhatsApp green is deliberately left alone.** The buttons that open WhatsApp
+keep WhatsApp's own green rather than going crimson, because that green is what
+makes a cafe owner recognise "this messages me on WhatsApp" without reading. If
+you would rather they matched the palette, change `--wa` in the tokens — but I
+would keep it.
 
 Two judgement calls worth knowing about:
 

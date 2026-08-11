@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CafeTrack — গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম</title>
 <meta name="description" id="meta-desc" content="কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। বাংলাদেশের গেমিং ক্যাফের জন্য বানানো।">
-<meta name="theme-color" content="#0b1020">
+<meta name="theme-color" content="#0a0508">
 
 <!-- ===================================================================
      TODO (Efat): replace https://cafetrack.example.com/ everywhere below
@@ -29,7 +29,7 @@
 <meta name="twitter:description" content="প্রতিটি ডিভাইস, প্রতিটি সেশন, প্রতিটি টাকা — এক স্ক্রিনে।">
 <meta name="twitter:image" content="https://cafetrack.example.com/assets/img/og-image.svg">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236366f1'/%3E%3Crect x='7' y='11' width='7' height='7' rx='2' fill='%23fff'/%3E%3Crect x='18' y='11' width='7' height='7' rx='2' fill='%2334d399'/%3E%3Crect x='7' y='21' width='18' height='3' rx='1.5' fill='%23fff' opacity='.5'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e8192f'/%3E%3Crect x='7' y='11' width='7' height='7' rx='2' fill='%23fff'/%3E%3Crect x='18' y='11' width='7' height='7' rx='2' fill='%23ffb3bd'/%3E%3Crect x='7' y='21' width='18' height='3' rx='1.5' fill='%23fff' opacity='.5'/%3E%3C/svg%3E">
 
 <!-- Fonts are self-hosted (assets/fonts/), Bangla + Latin subsets only, so there
      is no third-party DNS/TLS round trip on a 3G phone and no chance of Bangla
@@ -43,26 +43,32 @@
 /* Dark is the base palette. Light is applied when the OS asks for it
    (or when the header toggle sets data-theme="light" explicitly). */
 :root{
-  --bg:#0b1020;
-  --bg-2:#0f1528;
-  --surface:#141c33;
-  --surface-2:#1b2542;
-  --line:#243056;
-  --line-soft:#1b2440;
-  --fg:#eef1f8;
-  --fg-2:#b9c2da;
-  --fg-3:#8590ae;
-  --accent:#7c83f7;
-  --accent-strong:#6366f1;
+  --bg:#0a0508;
+  --bg-2:#12090d;
+  --surface:#1a0f14;
+  --surface-2:#23151b;
+  --line:#3a2029;
+  --line-soft:#26151c;
+  --fg:#fdf4f6;
+  --fg-2:#d3c0c6;
+  --fg-3:#a08e95;
+  --accent:#ff4d5e;
+  --accent-strong:#e8192f;
   --accent-ink:#ffffff;
-  --accent-soft:rgba(99,102,241,.14);
+  --accent-soft:rgba(232,25,47,.15);
+  /* The magenta→violet ramp from the reference. Used only on the pricing
+     cards and the video panel, never as page-wide chrome. */
+  --grad-a:#ff2d55;
+  --grad-b:#d21ea8;
+  --grad-c:#8b2ae0;
   --money:#34d399;
-  --money-soft:rgba(16,185,129,.13);
-  --warn:#f59e0b;
+  --money-soft:rgba(52,211,153,.13);
+  --warn:#fbbf24;
   --wa:#25d366;
   --wa-ink:#04231a;
-  --shadow:0 24px 60px -24px rgba(0,0,0,.75);
-  --shadow-sm:0 8px 24px -12px rgba(0,0,0,.6);
+  --shadow:0 24px 60px -24px rgba(0,0,0,.8);
+  --shadow-sm:0 8px 24px -12px rgba(0,0,0,.65);
+  --glow:0 0 60px -12px rgba(232,25,47,.45);
   --radius:16px;
   --radius-lg:22px;
   --maxw:1160px;
@@ -76,31 +82,36 @@
 
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
-    --bg:#f7f8fc; --bg-2:#ffffff; --surface:#ffffff; --surface-2:#f1f3fa;
-    --line:#dfe3f0; --line-soft:#e9ecf6;
-    --fg:#0d1428; --fg-2:#404a68; --fg-3:#606b8a;
-    --accent:#4f46e5; --accent-strong:#4f46e5; --accent-ink:#ffffff;
-    --accent-soft:rgba(79,70,229,.09);
+    --bg:#fbf6f7; --bg-2:#ffffff; --surface:#ffffff; --surface-2:#f8eef0;
+    --line:#ecd9de; --line-soft:#f4e6e9;
+    --fg:#1a0a0f; --fg-2:#574148; --fg-3:#7a5f68;
+    --accent:#c40d26; --accent-strong:#c40d26; --accent-ink:#ffffff;
+    --accent-soft:rgba(196,13,38,.09);
+    --grad-a:#e01046; --grad-b:#b3138c; --grad-c:#7020c4;
     --money:#047857; --money-soft:rgba(4,120,87,.10);
-    --warn:#b45309;
-    --shadow:0 24px 55px -28px rgba(16,24,60,.35);
-    --shadow-sm:0 8px 22px -14px rgba(16,24,60,.28);
+    --warn:#a35a06;
+    --shadow:0 24px 55px -28px rgba(60,16,26,.32);
+    --shadow-sm:0 8px 22px -14px rgba(60,16,26,.25);
+    --glow:0 0 60px -18px rgba(196,13,38,.25);
   }
 }
 :root[data-theme="light"]{
-  --bg:#f7f8fc; --bg-2:#ffffff; --surface:#ffffff; --surface-2:#f1f3fa;
-  --line:#dfe3f0; --line-soft:#e9ecf6;
-  --fg:#0d1428; --fg-2:#404a68; --fg-3:#606b8a;
-  --accent:#4f46e5; --accent-strong:#4f46e5; --accent-ink:#ffffff;
-  --accent-soft:rgba(79,70,229,.09);
+  --bg:#fbf6f7; --bg-2:#ffffff; --surface:#ffffff; --surface-2:#f8eef0;
+  --line:#ecd9de; --line-soft:#f4e6e9;
+  --fg:#1a0a0f; --fg-2:#574148; --fg-3:#7a5f68;
+  --accent:#c40d26; --accent-strong:#c40d26; --accent-ink:#ffffff;
+  --accent-soft:rgba(196,13,38,.09);
+  --grad-a:#e01046; --grad-b:#b3138c; --grad-c:#7020c4;
   --money:#047857; --money-soft:rgba(4,120,87,.10);
-  --warn:#b45309;
-  --shadow:0 24px 55px -28px rgba(16,24,60,.35);
-  --shadow-sm:0 8px 22px -14px rgba(16,24,60,.28);
+  --warn:#a35a06;
+  --shadow:0 24px 55px -28px rgba(60,16,26,.32);
+  --shadow-sm:0 8px 22px -14px rgba(60,16,26,.25);
+  --glow:0 0 60px -18px rgba(196,13,38,.25);
 }
 
 /* ============================ BASE ============================ */
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
 html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; scroll-padding-top:82px}
 @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
 body{
@@ -212,11 +223,20 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
 
 /* ============================ HERO ============================ */
 .hero{
+  position:relative; isolation:isolate;
   padding-top:clamp(38px,6vw,64px); padding-bottom:clamp(44px,6vw,72px);
   background:
-    radial-gradient(80% 60% at 50% -10%, var(--accent-soft), transparent 70%),
+    radial-gradient(70% 55% at 15% 0%, rgba(232,25,47,.20), transparent 62%),
+    radial-gradient(60% 50% at 88% 22%, rgba(139,42,224,.14), transparent 64%),
     var(--bg);
   border-bottom:1px solid var(--line-soft);
+}
+/* the red accent word + underline swoosh, on any heading that uses <em> */
+.hero h1 em,.sec-title em{font-style:normal; color:var(--accent); position:relative; white-space:nowrap}
+.hero h1 em::after,.sec-title em::after{
+  content:""; position:absolute; left:2%; right:2%; bottom:-.12em; height:.1em;
+  background:linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  border-radius:99px; opacity:.85;
 }
 .hero-grid{display:grid; gap:clamp(30px,5vw,54px); align-items:center}
 @media (min-width:960px){ .hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr)} }
@@ -263,6 +283,61 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
 .card-num{
   font-family:var(--sans); font-size:.78rem; font-weight:800; letter-spacing:.1em;
   color:var(--warn); display:block; margin-bottom:12px;
+}
+
+/* ============================ VIDEO ============================ */
+.video{
+  background:
+    radial-gradient(60% 60% at 50% 0%, rgba(232,25,47,.13), transparent 65%),
+    var(--bg-2);
+  border-block:1px solid var(--line-soft);
+}
+.video-panel{
+  position:relative; margin:38px auto 0; max-width:940px;
+  border-radius:var(--radius-lg); overflow:hidden;
+  border:1px solid var(--line); background:var(--surface);
+  box-shadow:var(--shadow), var(--glow);
+  aspect-ratio:16/9;
+}
+.video-panel::before{
+  content:""; position:absolute; inset:0; padding:1px; border-radius:inherit;
+  background:linear-gradient(135deg,var(--grad-a),var(--grad-b),var(--grad-c));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; z-index:2;
+}
+.video-panel img,.video-panel iframe,.video-panel video{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border:0;
+}
+/* the facade: nothing loads from a video host until this is clicked */
+.video-play{
+  position:absolute; inset:0; z-index:3; display:grid; place-items:center; gap:14px;
+  align-content:center; width:100%; border:0; cursor:pointer; color:#fff;
+  background:linear-gradient(180deg, rgba(10,5,8,.15), rgba(10,5,8,.55));
+  font:inherit;
+}
+.video-play-ring{
+  width:84px; height:84px; border-radius:50%; display:grid; place-items:center;
+  background:var(--accent-strong); box-shadow:0 0 0 0 rgba(232,25,47,.55);
+  transition:transform .2s ease;
+}
+.video-play:hover .video-play-ring{transform:scale(1.08)}
+@media (prefers-reduced-motion: no-preference){
+  .video-play-ring{animation:pulse 2.6s ease-out infinite}
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(232,25,47,.5)}
+  70%{box-shadow:0 0 0 26px rgba(232,25,47,0)}
+  100%{box-shadow:0 0 0 0 rgba(232,25,47,0)}
+}
+.video-play-txt{font-weight:800; font-size:1.05rem; text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.video-play-sub{font-size:.9rem; opacity:.85; text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.video-meta{
+  display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:20px 0 0;
+  padding:0; list-style:none;
+}
+.video-meta li{
+  font-size:.88rem; color:var(--fg-2); background:var(--surface);
+  border:1px solid var(--line); border-radius:999px; padding:7px 15px;
 }
 
 /* ============================ FEATURES ============================ */
@@ -330,6 +405,46 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   padding:6px 16px; border-radius:999px; white-space:nowrap;
 }
 .price-amount{font-size:clamp(1.7rem,5vw,2.4rem); font-weight:800; margin:14px 0 6px}
+
+/* one-time + yearly, side by side on desktop, stacked with a "+" on mobile */
+.price-rows{
+  display:grid; gap:14px; align-items:stretch; margin:26px 0 0; text-align:start;
+  grid-template-columns:1fr auto 1fr;
+}
+@media (max-width:640px){ .price-rows{grid-template-columns:1fr} }
+.price-row{
+  background:var(--surface-2); border:1px solid var(--line);
+  border-radius:14px; padding:20px 20px 18px; position:relative; overflow:hidden;
+}
+.price-row::before{
+  content:""; position:absolute; inset:0 0 auto 0; height:3px;
+  background:linear-gradient(90deg,var(--grad-a),var(--grad-b),var(--grad-c));
+}
+.price-row-head{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:8px}
+.price-row-label{font-weight:700; font-size:1.02rem}
+.price-row-tag{
+  font-size:.74rem; font-weight:700; color:var(--accent); background:var(--accent-soft);
+  border-radius:999px; padding:3px 10px; white-space:nowrap;
+}
+.price-row-amount{
+  font-size:clamp(1.35rem,3.6vw,1.9rem); font-weight:800; line-height:1.25;
+  background:linear-gradient(90deg,var(--grad-a),var(--grad-b));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+/* the gradient text needs a solid fallback wherever background-clip is missing */
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  .price-row-amount{color:var(--accent); background:none}
+}
+.price-row-note{color:var(--fg-2); font-size:.92rem; margin:8px 0 0}
+.price-plus{
+  display:grid; place-items:center; font-size:1.5rem; font-weight:800; color:var(--fg-3);
+}
+.price-no-monthly{
+  margin:20px 0 0; padding:12px 16px; border-radius:12px;
+  background:var(--money-soft); color:var(--money);
+  border:1px solid color-mix(in srgb, var(--money) 32%, transparent);
+  font-weight:700; font-size:.95rem;
+}
 .price-list{list-style:none; padding:0; margin:24px 0; text-align:start; display:grid; gap:11px}
 .price-list li{display:flex; gap:11px; align-items:flex-start; color:var(--fg-2)}
 .tick{flex:0 0 auto; margin-top:4px; color:var(--money)}
@@ -484,7 +599,7 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
   <div class="wrap hero-grid">
     <div>
       <span class="eyebrow" data-i18n="hero.eyebrow">গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম</span>
-      <h1 id="hero-h" data-i18n="hero.h1">আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি হিসাবে?</h1>
+      <h1 id="hero-h" data-i18n-html="hero.h1">আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি <em>হিসাবে</em>?</h1>
       <p class="hero-sub" data-i18n="hero.sub">কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। খাতা আর Excel এর দিন শেষ।</p>
       <div class="hero-cta">
         <a class="btn btn-wa js-wa" href="#contact">
@@ -543,6 +658,42 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         <p data-i18n="problem.a4">এক ঘণ্টার বুকিং দেড় ঘণ্টা হয়ে যায়। ব্যস্ত সন্ধ্যায় কেউ ঘড়ি দেখে না।</p>
       </article>
     </div>
+  </div>
+</section>
+
+<!-- ======================= VIDEO =======================
+     The player is a facade: the poster image is all that loads until someone
+     clicks, so no video host is contacted on a 3G first paint. Set
+     CONFIG.video.youtubeId OR CONFIG.video.mp4 to switch it on — while both
+     are empty the whole section hides itself, so a visitor never meets a dead
+     play button. -->
+<section id="video" class="video" aria-labelledby="video-h" hidden>
+  <div class="wrap center">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="video.eyebrow">চোখে দেখুন</span>
+      <h2 class="sec-title" id="video-h" data-i18n-html="video.h">৯০ সেকেন্ডে <em>পুরো সিস্টেম</em> দেখে নিন</h2>
+      <p class="sec-lede" data-i18n="video.lede">পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। সেশন শুরু থেকে দিনশেষের হিসাব পর্যন্ত — পুরোটা এক ভিডিওতে।</p>
+    </div>
+
+    <div class="video-panel reveal" id="video-panel">
+      <img id="video-poster" src="assets/img/video-poster.svg" width="1280" height="720"
+           loading="lazy" decoding="async"
+           data-i18n-attr="alt:video.posterAlt"
+           alt="CafeTrack এর ভিডিও — সেশন শুরু, বিল আর দিনশেষের হিসাব দেখানো হয়েছে।">
+      <button type="button" class="video-play" id="video-play">
+        <span class="video-play-ring" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+        </span>
+        <span class="video-play-txt" data-i18n="video.play">ভিডিওটি চালান</span>
+        <span class="video-play-sub" data-i18n="video.len">প্রায় ৯০ সেকেন্ড</span>
+      </button>
+    </div>
+
+    <ul class="video-meta reveal">
+      <li data-i18n="video.m1">সেশন শুরু আর শেষ</li>
+      <li data-i18n="video.m2">বিল আর রসিদ</li>
+      <li data-i18n="video.m3">দিনশেষের হিসাব</li>
+    </ul>
   </div>
 </section>
 
@@ -772,33 +923,60 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
   </div>
 </section>
 
-<!-- ======================= PRICING ======================= -->
-<!-- TODO (Efat): you have not fixed a price yet, so this renders the
-     "first 5 cafes free" card exactly as your brief specified. When you
-     decide, replace this block with two or three cards and update the
-     pricing.* keys in the TRANSLATIONS object below. -->
+<!-- ======================= PRICING =======================
+     One cafe = one product. A one-time charge to own it, then a yearly
+     hosting charge to keep it online. No monthly billing.
+     The two amounts come from CONFIG.pricing — while they are empty each one
+     reads "কথা বলে ঠিক করব" / "we'll agree on the call" and the structure
+     still shows, so nothing here states a price you have not set. -->
 <section id="pricing" aria-labelledby="pricing-h" class="early">
   <div class="wrap">
     <div class="center reveal">
       <span class="eyebrow" data-i18n="pricing.eyebrow">প্রাইসিং</span>
-      <h2 class="sec-title" id="pricing-h" data-i18n="pricing.h">খরচ কত পড়বে</h2>
-      <p class="sec-lede" data-i18n="pricing.lede">লুকানো কিছু নেই। সেটআপের জন্য আলাদা কোনো ফি নেই।</p>
+      <h2 class="sec-title" id="pricing-h" data-i18n-html="pricing.h">একবার কিনুন, <em>মাসে মাসে বিল নেই</em></h2>
+      <p class="sec-lede" data-i18n="pricing.lede">একটা ক্যাফে, একটা প্রোডাক্ট। একবারের খরচে সিস্টেমটা আপনার, তারপর বছরে শুধু হোস্টিং। এর বাইরে আর কিছু নেই।</p>
     </div>
+
     <div class="price-wrap reveal">
       <div class="price-card">
-        <span class="price-badge" data-i18n="pricing.badge">শুরুর অফার</span>
-        <h3 class="price-amount" data-i18n="pricing.amount">প্রথম ৫টি ক্যাফের জন্য ফ্রি</h3>
-        <p style="color:var(--fg-2); margin:0" data-i18n="pricing.sub">কথা বলে ঠিক করব</p>
+        <span class="price-badge" data-i18n="pricing.badge">এক ক্যাফে · এক প্রোডাক্ট</span>
+
+        <div class="price-rows">
+          <div class="price-row">
+            <div class="price-row-head">
+              <span class="price-row-label" data-i18n="pricing.oneTimeLabel">একবারের খরচ</span>
+              <span class="price-row-tag" data-i18n="pricing.oneTimeTag">একবারই</span>
+            </div>
+            <div class="price-row-amount num" id="price-one-time" data-i18n="pricing.tbd">কথা বলে ঠিক করব</div>
+            <p class="price-row-note" data-i18n="pricing.oneTimeNote">সিস্টেমটা আপনার ক্যাফের জন্য বসিয়ে দেওয়া, সেটআপ আর স্টাফ ট্রেনিং সহ।</p>
+          </div>
+
+          <div class="price-plus" aria-hidden="true">+</div>
+
+          <div class="price-row">
+            <div class="price-row-head">
+              <span class="price-row-label" data-i18n="pricing.yearlyLabel">হোস্টিং</span>
+              <span class="price-row-tag" data-i18n="pricing.yearlyTag">বছরে একবার</span>
+            </div>
+            <div class="price-row-amount num" id="price-yearly" data-i18n="pricing.tbd">কথা বলে ঠিক করব</div>
+            <p class="price-row-note" data-i18n="pricing.yearlyNote">সার্ভার, ডোমেইন আর ব্যাকআপ চালু রাখার খরচ। বছরে একবার, ব্যস।</p>
+          </div>
+        </div>
+
+        <p class="price-no-monthly" data-i18n="pricing.noMonthly">মাসিক ফি নেই · সেটআপ ফি নেই · লুকানো খরচ নেই</p>
+
         <ul class="price-list">
           <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l1">পুরো সিস্টেম, কোনো ফিচার বন্ধ রাখা নেই</span></li>
-          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l2">সেটআপ আমি করে দিই — ফ্রি</span></li>
+          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l2">সেটআপ আমি নিজে করে দিই</span></li>
           <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l3">স্টাফকে শিখিয়ে দেওয়াও এর মধ্যে</span></li>
           <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l4">সমস্যা হলে সরাসরি আমাকে WhatsApp করবেন</span></li>
+          <li><svg class="tick" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span data-i18n="pricing.l5">আপনার ডাটা যেকোনো সময় CSV তে নামিয়ে নিতে পারবেন</span></li>
         </ul>
+
         <a class="btn btn-wa js-wa" href="#contact" style="width:100%">
           <span data-i18n="pricing.cta">WhatsApp এ কথা বলি</span>
         </a>
-        <p class="price-foot" data-i18n="pricing.foot">দাম নিয়ে এখনো কিছু চূড়ান্ত করিনি — প্রথম ক্যাফেগুলোর সাথে বসেই ঠিক করব।</p>
+        <p class="price-foot" data-i18n="pricing.foot">একাধিক ব্রাঞ্চ থাকলে প্রতিটা ব্রাঞ্চ আলাদা প্রোডাক্ট — কথা বলে ঠিক করে নেব।</p>
       </div>
     </div>
   </div>
@@ -1014,6 +1192,28 @@ const CONFIG = {
   // TODO (Efat): your domain once it is pointed at this site.
   site: "https://cafetrack.example.com/",
 
+  // The explainer video. Fill in ONE of these two:
+  //   youtubeId — just the id, e.g. "dQw4w9WgXcQ" (from the watch?v= URL)
+  //   mp4       — a path to your own file, e.g. "assets/cafetrack-demo.mp4"
+  // While both are empty the whole video section stays hidden, so a visitor
+  // never sees a play button that does nothing.
+  // TODO (Efat): record the 90-second walkthrough and fill one of these.
+  video: {
+    youtubeId: "",
+    mp4: "",
+    poster: "assets/img/video-poster.svg"
+  },
+
+  // One cafe = one product: a one-time charge, then yearly hosting.
+  // Write the amounts however you want them to read, e.g. "৳25,000".
+  // Leave either empty and it reads "কথা বলে ঠিক করব" instead of a number —
+  // the one-time + yearly structure still shows.
+  // TODO (Efat): set these once you have decided.
+  pricing: {
+    oneTime: "",
+    yearlyHosting: ""
+  },
+
   // Contact form target. Leave "" and the form falls back to opening
   // WhatsApp with the four fields already typed out — no data is lost.
   // TODO (Efat): paste a Formspree endpoint here to collect them by email
@@ -1039,7 +1239,7 @@ const T = {
     "a11y.fab":"WhatsApp এ ডেমো নিন",
 
     "hero.eyebrow":"গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম",
-    "hero.h1":"আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি হিসাবে?",
+    "hero.h1":"আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি <em>হিসাবে</em>?",
     "hero.sub":"কোন ডিভাইস চলছে, কে খেলছে, কত বিল উঠল, দিনশেষে খরচ বাদে কত থাকল — সব এক জায়গায়। খাতা আর Excel এর দিন শেষ।",
     "hero.cta1":"ফ্রি ডেমো নিন", "hero.cta2":"ফিচার দেখুন",
     "hero.note":"Game n Chill এর জন্য বানানো, এখন সব ক্যাফের জন্য",
@@ -1109,17 +1309,30 @@ const T = {
     "who.1":"গেমিং ক্যাফে", "who.2":"PlayStation লাউঞ্জ",
     "who.3":"একাধিক ব্রাঞ্চ", "who.4":"ছোট ক্যাফে (৪+ ডিভাইস)",
 
-    "pricing.eyebrow":"প্রাইসিং", "pricing.h":"খরচ কত পড়বে",
-    "pricing.lede":"লুকানো কিছু নেই। সেটআপের জন্য আলাদা কোনো ফি নেই।",
-    "pricing.badge":"শুরুর অফার",
-    "pricing.amount":"প্রথম ৫টি ক্যাফের জন্য ফ্রি",
-    "pricing.sub":"কথা বলে ঠিক করব",
+    "pricing.eyebrow":"প্রাইসিং",
+    "pricing.h":"একবার কিনুন, <em>মাসে মাসে বিল নেই</em>",
+    "pricing.lede":"একটা ক্যাফে, একটা প্রোডাক্ট। একবারের খরচে সিস্টেমটা আপনার, তারপর বছরে শুধু হোস্টিং। এর বাইরে আর কিছু নেই।",
+    "pricing.badge":"এক ক্যাফে · এক প্রোডাক্ট",
+    "pricing.tbd":"কথা বলে ঠিক করব",
+    "pricing.oneTimeLabel":"একবারের খরচ", "pricing.oneTimeTag":"একবারই",
+    "pricing.oneTimeNote":"সিস্টেমটা আপনার ক্যাফের জন্য বসিয়ে দেওয়া, সেটআপ আর স্টাফ ট্রেনিং সহ।",
+    "pricing.yearlyLabel":"হোস্টিং", "pricing.yearlyTag":"বছরে একবার",
+    "pricing.yearlyNote":"সার্ভার, ডোমেইন আর ব্যাকআপ চালু রাখার খরচ। বছরে একবার, ব্যস।",
+    "pricing.noMonthly":"মাসিক ফি নেই · সেটআপ ফি নেই · লুকানো খরচ নেই",
     "pricing.l1":"পুরো সিস্টেম, কোনো ফিচার বন্ধ রাখা নেই",
-    "pricing.l2":"সেটআপ আমি করে দিই — ফ্রি",
+    "pricing.l2":"সেটআপ আমি নিজে করে দিই",
     "pricing.l3":"স্টাফকে শিখিয়ে দেওয়াও এর মধ্যে",
     "pricing.l4":"সমস্যা হলে সরাসরি আমাকে WhatsApp করবেন",
+    "pricing.l5":"আপনার ডাটা যেকোনো সময় CSV তে নামিয়ে নিতে পারবেন",
     "pricing.cta":"WhatsApp এ কথা বলি",
-    "pricing.foot":"দাম নিয়ে এখনো কিছু চূড়ান্ত করিনি — প্রথম ক্যাফেগুলোর সাথে বসেই ঠিক করব।",
+    "pricing.foot":"একাধিক ব্রাঞ্চ থাকলে প্রতিটা ব্রাঞ্চ আলাদা প্রোডাক্ট — কথা বলে ঠিক করে নেব।",
+
+    "video.eyebrow":"চোখে দেখুন",
+    "video.h":"৯০ সেকেন্ডে <em>পুরো সিস্টেম</em> দেখে নিন",
+    "video.lede":"পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। সেশন শুরু থেকে দিনশেষের হিসাব পর্যন্ত — পুরোটা এক ভিডিওতে।",
+    "video.play":"ভিডিওটি চালান", "video.len":"প্রায় ৯০ সেকেন্ড",
+    "video.posterAlt":"CafeTrack এর ভিডিও — সেশন শুরু, বিল আর দিনশেষের হিসাব দেখানো হয়েছে।",
+    "video.m1":"সেশন শুরু আর শেষ", "video.m2":"বিল আর রসিদ", "video.m3":"দিনশেষের হিসাব",
 
     "early.eyebrow":"সৎ কথা", "early.h":"শুরুর ক্যাফে হয়ে যান",
     "early.p1":"CafeTrack নতুন। এটা আমি নিজের ক্যাফের জন্য বানিয়েছি, কারণ খাতা আর Excel দিয়ে হিসাব মিলছিল না। এখন অন্য ক্যাফের জন্য খুলে দিচ্ছি।",
@@ -1203,7 +1416,7 @@ const T = {
     "a11y.fab":"Book a demo on WhatsApp",
 
     "hero.eyebrow":"Gaming cafe management system",
-    "hero.h1":"Run your gaming cafe on numbers, not guesswork.",
+    "hero.h1":"Run your gaming cafe on <em>numbers</em>, not guesswork.",
     "hero.sub":"Every device, every session, every taka — live on one screen. Daily and monthly profit worked out for you.",
     "hero.cta1":"Book a free demo", "hero.cta2":"See the features",
     "hero.note":"Built for my own cafe. Now open to yours.",
@@ -1273,17 +1486,30 @@ const T = {
     "who.1":"Gaming cafes", "who.2":"PlayStation lounges",
     "who.3":"Multiple branches", "who.4":"Small cafes (4+ devices)",
 
-    "pricing.eyebrow":"Pricing", "pricing.h":"What it costs",
-    "pricing.lede":"Nothing hidden. There is no separate setup fee.",
-    "pricing.badge":"Opening offer",
-    "pricing.amount":"Free for the first 5 cafes",
-    "pricing.sub":"We'll agree the rest over a call",
+    "pricing.eyebrow":"Pricing",
+    "pricing.h":"Buy it once. <em>No monthly bills.</em>",
+    "pricing.lede":"One cafe, one product. A one-time charge and the system is yours, then hosting once a year. Nothing else.",
+    "pricing.badge":"One cafe · one product",
+    "pricing.tbd":"We'll agree it on the call",
+    "pricing.oneTimeLabel":"One-time charge", "pricing.oneTimeTag":"once only",
+    "pricing.oneTimeNote":"The system set up for your cafe, including setup and training your staff.",
+    "pricing.yearlyLabel":"Hosting", "pricing.yearlyTag":"once a year",
+    "pricing.yearlyNote":"What it costs to keep the server, domain and backups running. Once a year, that's it.",
+    "pricing.noMonthly":"No monthly fee · no setup fee · no hidden costs",
     "pricing.l1":"The whole system — no features held back",
-    "pricing.l2":"I do the setup for you, free",
+    "pricing.l2":"I do the setup myself",
     "pricing.l3":"Training your staff is included",
     "pricing.l4":"Something breaks, you WhatsApp me directly",
+    "pricing.l5":"Export your data to CSV whenever you want",
     "pricing.cta":"Talk to me on WhatsApp",
-    "pricing.foot":"I have not fixed a price yet — I will work it out together with the first few cafes.",
+    "pricing.foot":"Got more than one branch? Each branch is its own product — we'll sort that out on the call.",
+
+    "video.eyebrow":"See it working",
+    "video.h":"The whole system in <em>90 seconds</em>",
+    "video.lede":"Quicker to watch than to read. From starting a session to the day's books — all of it in one video.",
+    "video.play":"Play the video", "video.len":"about 90 seconds",
+    "video.posterAlt":"CafeTrack walkthrough video — starting a session, the bill, and the day's summary.",
+    "video.m1":"Starting and ending a session", "video.m2":"The bill and the receipt", "video.m3":"The day's books",
 
     "early.eyebrow":"Straight talk", "early.h":"Be an early cafe",
     "early.p1":"CafeTrack is new. I built it for my own cafe because the khata and the Excel sheet stopped adding up. Now I am opening it to other cafes.",
@@ -1417,6 +1643,13 @@ const T = {
       const v = dict[el.getAttribute("data-i18n")];
       if (v != null) el.textContent = v;
     });
+    // data-i18n-html allows a little markup in a string (the <em> that paints
+    // one word of the headline red). Only ever put our own copy in these keys —
+    // never anything a visitor typed.
+    $$("[data-i18n-html]").forEach(el => {
+      const v = dict[el.getAttribute("data-i18n-html")];
+      if (v != null) el.innerHTML = v;
+    });
     $$("[data-i18n-attr]").forEach(el => {
       el.getAttribute("data-i18n-attr").split(",").forEach(pair => {
         const bits = pair.split(":");
@@ -1434,6 +1667,7 @@ const T = {
     $("#lang-en").setAttribute("aria-pressed", String(lang === "en"));
 
     applyContact(lang);
+    applyPricing(lang);
     if (remember) { try { localStorage.setItem("ct-lang", lang); } catch (e) {} }
   }
 
@@ -1456,7 +1690,7 @@ const T = {
   function paintThemeIcon() {
     $("#theme-icon").innerHTML = '<path d="' + (currentIsDark() ? moon : sun) + '"/>';
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", currentIsDark() ? "#0b1020" : "#f7f8fc");
+    if (meta) meta.setAttribute("content", currentIsDark() ? "#0a0508" : "#fbf6f7");
   }
   let savedTheme = null;
   try { savedTheme = localStorage.getItem("ct-theme"); } catch (e) {}
@@ -1550,8 +1784,65 @@ const T = {
     }
   });
 
+  /* ---------- pricing amounts ----------
+     Only ever prints what CONFIG.pricing holds. Empty stays "to be agreed",
+     so the page cannot show a price that was never set. Re-run on every
+     language switch, because the fallback text is itself translated. */
+  function applyPricing(lang) {
+    [["#price-one-time", CONFIG.pricing.oneTime],
+     ["#price-yearly",   CONFIG.pricing.yearlyHosting]].forEach(([sel, val]) => {
+      const el = $(sel);
+      if (!el) return;
+      if (val) {
+        el.textContent = val;
+        el.removeAttribute("data-i18n");   // a real amount is not translated
+      } else {
+        el.setAttribute("data-i18n", "pricing.tbd");
+        el.textContent = T[lang]["pricing.tbd"];
+      }
+    });
+  }
+
+  /* ---------- explainer video ----------
+     A facade player: only the poster loads with the page. The embed is
+     created on click, so nothing is requested from a video host until the
+     visitor actually asks for it. */
+  function initVideo() {
+    const sec = $("#video"), panel = $("#video-panel"), btn = $("#video-play");
+    const poster = $("#video-poster");
+    const v = CONFIG.video || {};
+    if (!v.youtubeId && !v.mp4) {
+      console.warn("[CafeTrack] No CONFIG.video.youtubeId or .mp4 set — the video section is hidden.");
+      return;                       // section keeps its `hidden` attribute
+    }
+    if (v.poster) poster.src = v.poster;
+    sec.hidden = false;
+
+    btn.addEventListener("click", () => {
+      let node;
+      if (v.youtubeId) {
+        node = document.createElement("iframe");
+        // -nocookie so a visitor is not tracked before they have chosen anything
+        node.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(v.youtubeId) +
+                   "?autoplay=1&rel=0&modestbranding=1";
+        node.title = T[root.lang]["video.h"].replace(/<[^>]+>/g, "");
+        node.allow = "accelerometer; autoplay; encrypted-media; picture-in-picture";
+        node.allowFullscreen = true;
+      } else {
+        node = document.createElement("video");
+        node.src = v.mp4;
+        node.controls = true; node.autoplay = true; node.playsInline = true;
+        if (v.poster) node.poster = v.poster;
+      }
+      btn.remove();
+      poster.remove();
+      panel.appendChild(node);
+    });
+  }
+
   /* ---------- misc ---------- */
   $("#year").textContent = new Date().getFullYear();
+  initVideo();
   patchJsonLd();
 
   if (CONFIG.whatsapp.indexOf("X") !== -1) {
