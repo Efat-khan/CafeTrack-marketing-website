@@ -1208,13 +1208,14 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
    1) CONFIG — the only things you must fill in.
    ================================================================== */
 const CONFIG = {
-  // WhatsApp number in 8801XXXXXXXXX form — no +, no spaces.
-  // TODO (Efat): REQUIRED. Nothing else works until this is real.
-  whatsapp: "8801XXXXXXXXX",
+  // WhatsApp number in international form — no +, no spaces.
+  // 01404571271 -> drop the leading 0, prefix 880.
+  whatsapp: "8801404571271",
 
-  // How the number is shown as readable text.
-  // TODO (Efat): e.g. "+880 1712-345678"
-  phoneDisplay: "+880 1XXX-XXXXXX",
+  // How the number reads on the page. Local form, because that is what a
+  // cafe owner here recognises; the tel: link still uses the +880 form so it
+  // dials correctly from anywhere.
+  phoneDisplay: "01404-571271",
 
   // TODO (Efat): your Facebook page URL, e.g. "https://facebook.com/cafetrackbd"
   facebook: "",

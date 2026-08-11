@@ -25,8 +25,8 @@ Everything you must supply lives in one `CONFIG` object near the bottom of
 
 | Field | What to put | Status |
 | --- | --- | --- |
-| `whatsapp` | `8801XXXXXXXXX` — no `+`, no spaces | **Required.** Every WhatsApp button is dead until this is real. The browser console warns you while it is still a placeholder. |
-| `phoneDisplay` | How the number reads on the page, e.g. `+880 1712-345678` | Required |
+| `whatsapp` | `8801XXXXXXXXX` — no `+`, no spaces | **Set** to `8801404571271` (01404571271). All six WhatsApp buttons, both tel: links and the JSON-LD now use it |
+| `phoneDisplay` | How the number reads on the page | **Set** to `01404-571271` — local form, since that is what a cafe owner here recognises. The `tel:` link still uses `+8801404571271`, so it dials from anywhere |
 | `facebook` | Your Facebook page URL | Optional — left empty, the footer link greys out |
 | `email` | The email you want shown | Optional — left empty, the footer row is removed |
 | `site` | Your domain once pointed here | Required for correct SEO/OG tags |
