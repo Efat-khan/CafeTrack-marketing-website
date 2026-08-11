@@ -346,13 +346,27 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   .video-play-ring svg{width:24px; height:24px}
   .video-play-txt{font-size:.92rem; padding:7px 14px}
 }
-.video-meta{
-  display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:20px 0 0;
-  padding:0; list-style:none;
+/* picker shown when there is more than one video */
+.video-tabs{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:22px 0 0}
+.video-tab{
+  display:flex; align-items:center; gap:12px; text-align:start;
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  padding:8px 18px 8px 8px; cursor:pointer; color:var(--fg-2);
+  font:inherit; font-weight:600; max-width:100%;
+  transition:border-color .16s ease, background .16s ease, color .16s ease;
 }
-.video-meta li{
-  font-size:.88rem; color:var(--fg-2); background:var(--surface);
-  border:1px solid var(--line); border-radius:999px; padding:7px 15px;
+.video-tab:hover{border-color:var(--accent); color:var(--fg)}
+.video-tab[aria-selected="true"]{
+  border-color:var(--accent); color:var(--fg); background:var(--accent-soft);
+}
+.video-tab img{
+  width:88px; height:50px; flex:0 0 auto; border-radius:9px;
+  object-fit:cover; background:var(--surface-2);
+}
+.video-tab-len{display:block; font-weight:400; font-size:.82rem; color:var(--fg-3)}
+@media (max-width:520px){
+  .video-tabs{flex-direction:column; align-items:stretch}
+  .video-tab{width:100%}
 }
 
 /* ============================ FEATURES ============================ */
@@ -677,24 +691,23 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
 </section>
 
 <!-- ======================= VIDEO =======================
-     The player is a facade: the poster image is all that loads until someone
-     clicks, so no video host is contacted on a 3G first paint. Set
-     CONFIG.video.youtubeId OR CONFIG.video.mp4 to switch it on — while both
-     are empty the whole section hides itself, so a visitor never meets a dead
-     play button. -->
+     The player is a facade: only a poster image loads with the page, so no
+     video host is contacted on a 3G first paint and nobody is tracked before
+     they choose to watch. Videos come from CONFIG.video.items — add or remove
+     entries there. With one entry the picker below the panel is hidden; with
+     several it becomes a keyboard-operable tab strip. Empty the list and the
+     whole section hides itself, so a visitor never meets a dead play button. -->
 <section id="video" class="video" aria-labelledby="video-h" hidden>
   <div class="wrap center">
     <div class="reveal">
       <span class="eyebrow" data-i18n="video.eyebrow">চোখে দেখুন</span>
       <h2 class="sec-title" id="video-h" data-i18n-html="video.h">ভিডিওতে <em>পুরো সিস্টেম</em> দেখে নিন</h2>
-      <p class="sec-lede" data-i18n="video.lede">পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। এক ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।</p>
+      <p class="sec-lede" data-i18n="video.lede">পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।</p>
     </div>
 
-    <div class="video-panel reveal" id="video-panel">
+    <div class="video-panel reveal" id="video-panel" role="tabpanel">
       <img id="video-poster" src="assets/img/video-poster.svg" width="1280" height="720"
-           loading="lazy" decoding="async"
-           data-i18n-attr="alt:video.posterAlt"
-           alt="CafeTrack এর ভিডিও — সেশন শুরু, বিল আর দিনশেষের হিসাব দেখানো হয়েছে।">
+           loading="lazy" decoding="async" alt="">
       <button type="button" class="video-play" id="video-play">
         <span class="video-play-ring" aria-hidden="true">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
@@ -704,15 +717,10 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
       </button>
     </div>
 
-    <!-- TODO (Efat): confirm these three chips and the poster alt text above
-         actually match what your video shows — I have not been able to watch
-         it. They are the video.m1/m2/m3 and video.posterAlt translation keys;
-         correct them or delete the <ul> entirely. -->
-    <ul class="video-meta reveal">
-      <li data-i18n="video.m1">সেশন শুরু আর শেষ</li>
-      <li data-i18n="video.m2">বিল আর রসিদ</li>
-      <li data-i18n="video.m3">দিনশেষের হিসাব</li>
-    </ul>
+    <!-- Filled in by initVideo() from CONFIG.video.items. Stays hidden when
+         there is only one video. -->
+    <div class="video-tabs reveal" id="video-tabs" role="tablist"
+         data-i18n-attr="aria-label:video.tabsLabel" aria-label="ভিডিও বেছে নিন" hidden></div>
   </div>
 </section>
 
@@ -1211,26 +1219,32 @@ const CONFIG = {
   // TODO (Efat): your domain once it is pointed at this site.
   site: "https://cafetrack.example.com/",
 
-  // The explainer video. Fill in ONE of these two:
-  //   youtubeId — just the id, e.g. "dQw4w9WgXcQ" (from the watch?v= URL)
-  //   mp4       — a path to your own file, e.g. "assets/cafetrack-demo.mp4"
-  // While both are empty the whole video section stays hidden, so a visitor
-  // never sees a play button that does nothing.
+  // The explainer videos. Each entry needs EITHER a youtubeId (just the id
+  // from the watch?v= / youtu.be URL) OR mp4 (a path to your own file).
+  // Add or remove entries freely: one video hides the picker, several turn it
+  // into a tab strip, an empty list hides the whole section.
   video: {
-    youtubeId: "0ouIKaPdgOk",          // https://youtu.be/0ouIKaPdgOk
-    mp4: "",
-
-    // "auto" uses YouTube's own thumbnail for the poster — no work for you,
-    // but it means one image request to i.ytimg.com when the section scrolls
-    // into view. To keep the page fully first-party, export a frame of the
-    // video yourself and point this at it, e.g. "assets/img/video-poster.jpg".
-    // Either way nothing from YouTube's *player* loads until someone clicks.
+    // "auto" uses YouTube's own thumbnails — no work for you, but it means an
+    // image request to i.ytimg.com when the section scrolls into view. To keep
+    // the page entirely first-party, give each item its own `poster` file.
+    // Either way, nothing from YouTube's *player* loads until someone clicks.
     poster: "auto",
 
-    // Shown under the play button. Left empty it is hidden — only put a
-    // length here if you have checked it against the real video.
-    // e.g. "প্রায় ২ মিনিট"
-    length: ""
+    items: [
+      {
+        youtubeId: "0ouIKaPdgOk",   // https://youtu.be/0ouIKaPdgOk
+        // TODO (Efat): name this video — it is what the picker button reads.
+        // Left empty it falls back to "ভিডিও ১" / "Video 1".
+        label: "",
+        // Only fill this in once you have checked the real running time.
+        length: ""
+      },
+      {
+        youtubeId: "pz9iCrws_FY",   // https://youtu.be/pz9iCrws_FY
+        label: "",
+        length: ""
+      }
+    ]
   },
 
   // One cafe = one product: a one-time charge, then yearly hosting.
@@ -1358,10 +1372,11 @@ const T = {
 
     "video.eyebrow":"চোখে দেখুন",
     "video.h":"ভিডিওতে <em>পুরো সিস্টেম</em> দেখে নিন",
-    "video.lede":"পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। এক ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।",
+    "video.lede":"পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।",
     "video.play":"ভিডিওটি চালান",
-    "video.posterAlt":"CafeTrack এর ভিডিও — সেশন শুরু, বিল আর দিনশেষের হিসাব দেখানো হয়েছে।",
-    "video.m1":"সেশন শুরু আর শেষ", "video.m2":"বিল আর রসিদ", "video.m3":"দিনশেষের হিসাব",
+    "video.item":"ভিডিও",
+    "video.tabsLabel":"ভিডিও বেছে নিন",
+    "video.thumbAlt":"{label} — CafeTrack এর ভিডিও থাম্বনেইল",
 
     "early.eyebrow":"সৎ কথা", "early.h":"শুরুর ক্যাফে হয়ে যান",
     "early.p1":"CafeTrack নতুন। এটা আমি নিজের ক্যাফের জন্য বানিয়েছি, কারণ খাতা আর Excel দিয়ে হিসাব মিলছিল না। এখন অন্য ক্যাফের জন্য খুলে দিচ্ছি।",
@@ -1535,10 +1550,11 @@ const T = {
 
     "video.eyebrow":"See it working",
     "video.h":"See <em>the whole system</em> working",
-    "video.lede":"Quicker to watch than to read. One video showing how the system actually runs.",
+    "video.lede":"Quicker to watch than to read. See how the system actually runs.",
     "video.play":"Play the video",
-    "video.posterAlt":"CafeTrack walkthrough video — starting a session, the bill, and the day's summary.",
-    "video.m1":"Starting and ending a session", "video.m2":"The bill and the receipt", "video.m3":"The day's books",
+    "video.item":"Video",
+    "video.tabsLabel":"Choose a video",
+    "video.thumbAlt":"{label} — CafeTrack video thumbnail",
 
     "early.eyebrow":"Straight talk", "early.h":"Be an early cafe",
     "early.p1":"CafeTrack is new. I built it for my own cafe because the khata and the Excel sheet stopped adding up. Now I am opening it to other cafes.",
@@ -1620,6 +1636,11 @@ const T = {
   const $  = (s, c) => (c || document).querySelector(s);
   const $$ = (s, c) => Array.prototype.slice.call((c || document).querySelectorAll(s));
 
+  // Declared up here because setLang() runs during init and calls videoRelabel
+  // before initVideo() has been reached.
+  const LOCAL_POSTER = "assets/img/video-poster.svg";
+  let videoRelabel = null;      // set by initVideo, called on language change
+
   /* ---------- WhatsApp links ---------- */
   function waHref(lang, extra) {
     const msg = T[lang]["wa.msg"] + (extra || "");
@@ -1697,6 +1718,7 @@ const T = {
 
     applyContact(lang);
     applyPricing(lang);
+    if (videoRelabel) videoRelabel(lang);
     if (remember) { try { localStorage.setItem("ct-lang", lang); } catch (e) {} }
   }
 
@@ -1832,64 +1854,166 @@ const T = {
     });
   }
 
-  /* ---------- explainer video ----------
-     A facade player: only the poster loads with the page. The embed is
-     created on click, so nothing is requested from a video host until the
-     visitor actually asks for it. */
+  /* ---------- explainer videos ----------
+     A facade player: only a poster image loads with the page. The embed is
+     created on click, so nothing is requested from the video host — and no
+     visitor is tracked — until they actually ask to watch. */
+  function bnDigits(n, lang) {
+    return lang === "bn"
+      ? String(n).replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d])
+      : String(n);
+  }
+
+  // Swap through candidate sources until one loads; the last is a local file
+  // that always exists, so an <img> is never left broken.
+  function srcChain(img, chain) {
+    let i = 0;
+    img.onerror = () => { if (++i < chain.length) img.src = chain[i]; };
+    img.src = chain[0];
+  }
+
   function initVideo() {
-    const sec = $("#video"), panel = $("#video-panel"), btn = $("#video-play");
-    const poster = $("#video-poster");
+    const sec = $("#video"), panel = $("#video-panel");
+    const poster = $("#video-poster"), btn = $("#video-play"), lenEl = $("#video-length");
+    const tabsEl = $("#video-tabs");
     const v = CONFIG.video || {};
-    if (!v.youtubeId && !v.mp4) {
-      console.warn("[CafeTrack] No CONFIG.video.youtubeId or .mp4 set — the video section is hidden.");
+    const items = (v.items || []).filter(it => it && (it.youtubeId || it.mp4));
+
+    if (!items.length) {
+      console.warn("[CafeTrack] CONFIG.video.items is empty — the video section is hidden.");
       return;                       // section keeps its `hidden` attribute
     }
-    // Poster. "auto" walks YouTube's thumbnail sizes and falls back to the
-    // local placeholder if none exist, so the panel is never blank.
-    const LOCAL_POSTER = "assets/img/video-poster.svg";
-    if (v.poster === "auto" && v.youtubeId) {
-      const id = encodeURIComponent(v.youtubeId);
-      const chain = [
-        "https://i.ytimg.com/vi/" + id + "/maxresdefault.jpg",
-        "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg",
-        LOCAL_POSTER
-      ];
-      let i = 0;
-      poster.addEventListener("error", () => {
-        if (++i < chain.length) poster.src = chain[i];
-      });
-      poster.src = chain[0];
-    } else if (v.poster && v.poster !== "auto") {
-      poster.src = v.poster;
+
+    let current = 0, playing = false;
+
+    const thumbs = (id, big) => [
+      "https://i.ytimg.com/vi/" + encodeURIComponent(id) + (big ? "/maxresdefault.jpg" : "/mqdefault.jpg"),
+      "https://i.ytimg.com/vi/" + encodeURIComponent(id) + "/hqdefault.jpg",
+      LOCAL_POSTER
+    ];
+    function posterChain(it, big) {
+      const own = it.poster || v.poster;
+      if (own && own !== "auto") return [own, LOCAL_POSTER];
+      return it.youtubeId ? thumbs(it.youtubeId, big) : [LOCAL_POSTER];
+    }
+    function labelOf(it, i, lang) {
+      return it.label || (T[lang]["video.item"] + " " + bnDigits(i + 1, lang));
     }
 
-    // Only show a running time if one was actually supplied.
-    const lenEl = $("#video-length");
-    if (v.length) { lenEl.textContent = v.length; lenEl.hidden = false; }
-    else { lenEl.remove(); }
+    /* --- the tab strip, only when there is something to choose between --- */
+    const tabs = [];
+    if (items.length > 1) {
+      items.forEach((it, i) => {
+        const t = document.createElement("button");
+        t.type = "button";
+        t.className = "video-tab";
+        t.id = "vtab-" + i;
+        t.setAttribute("role", "tab");
+        const img = document.createElement("img");
+        img.width = 88; img.height = 50; img.loading = "lazy"; img.decoding = "async";
+        img.alt = "";
+        srcChain(img, posterChain(it, false));
+        const txt = document.createElement("span");
+        t.append(img, txt);
+        t.addEventListener("click", () => select(i, true));
+        tabsEl.appendChild(t);
+        tabs.push({ el: t, txt: txt });
+      });
 
-    sec.hidden = false;
+      // Roving tabindex + arrow keys, per the tablist pattern.
+      tabsEl.addEventListener("keydown", ev => {
+        const map = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+        let next = null;
+        if (map[ev.key]) next = (current + map[ev.key] + items.length) % items.length;
+        else if (ev.key === "Home") next = 0;
+        else if (ev.key === "End") next = items.length - 1;
+        if (next === null) return;
+        ev.preventDefault();
+        select(next, true);
+        tabs[next].el.focus();
+      });
+      tabsEl.hidden = false;
+    }
 
-    btn.addEventListener("click", () => {
+    /* --- put the poster + play button back in the panel --- */
+    function showFacade() {
+      const embed = panel.querySelector("iframe, video");
+      if (embed) embed.remove();
+      if (!poster.isConnected) panel.appendChild(poster);
+      if (!btn.isConnected) panel.appendChild(btn);
+      playing = false;
+    }
+
+    function playCurrent() {
+      const it = items[current];
       let node;
-      if (v.youtubeId) {
+      if (it.youtubeId) {
         node = document.createElement("iframe");
-        // -nocookie so a visitor is not tracked before they have chosen anything
-        node.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(v.youtubeId) +
+        // -nocookie: no tracking cookie before the visitor has chosen to watch
+        node.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(it.youtubeId) +
                    "?autoplay=1&rel=0&modestbranding=1";
-        node.title = T[root.lang]["video.h"].replace(/<[^>]+>/g, "");
+        node.title = labelOf(it, current, root.lang);
         node.allow = "accelerometer; autoplay; encrypted-media; picture-in-picture";
         node.allowFullscreen = true;
       } else {
         node = document.createElement("video");
-        node.src = v.mp4;
+        node.src = it.mp4;
         node.controls = true; node.autoplay = true; node.playsInline = true;
-        if (v.poster) node.poster = v.poster;
+        const own = it.poster || v.poster;
+        if (own && own !== "auto") node.poster = own;
       }
-      btn.remove();
       poster.remove();
+      btn.remove();
       panel.appendChild(node);
-    });
+      playing = true;
+    }
+
+    // `keepPlaying` — if the visitor is already watching, switching tabs should
+    // start the new video rather than drop them back to a poster.
+    function select(i, keepPlaying) {
+      const wasPlaying = playing && keepPlaying;
+      current = i;
+      const it = items[i];
+
+      showFacade();
+      srcChain(poster, posterChain(it, true));
+
+      if (it.length) { lenEl.textContent = it.length; lenEl.hidden = false; }
+      else { lenEl.hidden = true; lenEl.textContent = ""; }
+
+      tabs.forEach((t, n) => {
+        const on = n === i;
+        t.el.setAttribute("aria-selected", String(on));
+        t.el.tabIndex = on ? 0 : -1;
+      });
+      if (tabs.length) panel.setAttribute("aria-labelledby", "vtab-" + i);
+
+      relabel(root.lang);
+      if (wasPlaying) playCurrent();
+    }
+
+    /* --- labels depend on language, so they are re-rendered on a switch --- */
+    function relabel(lang) {
+      const dict = T[lang];
+      tabs.forEach((t, i) => {
+        const it = items[i];
+        t.txt.textContent = "";
+        t.txt.appendChild(document.createTextNode(labelOf(it, i, lang)));
+        if (it.length) {
+          const len = document.createElement("span");
+          len.className = "video-tab-len";
+          len.textContent = it.length;
+          t.txt.appendChild(len);
+        }
+      });
+      const it = items[current];
+      poster.alt = (dict["video.thumbAlt"] || "").replace("{label}", labelOf(it, current, lang));
+    }
+    videoRelabel = relabel;
+
+    btn.addEventListener("click", () => playCurrent());
+    select(0, false);
+    sec.hidden = false;
   }
 
   /* ---------- misc ---------- */
