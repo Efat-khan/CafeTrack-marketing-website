@@ -30,9 +30,9 @@ Everything you must supply lives in one `CONFIG` object near the bottom of
 | `facebook` | Your Facebook page URL | Optional — left empty, the footer link greys out |
 | `email` | The email you want shown | Optional — left empty, the footer row is removed |
 | `site` | Your domain once pointed here | Required for correct SEO/OG tags |
-| `video.items[].youtubeId` | **Already set** — both of your videos are in. Add, remove or reorder entries to change what appears | Done — see §2b |
-| `video.items[].label` | The name each picker button shows | **Worth doing.** Empty falls back to "ভিডিও ১" / "Video 1" |
-| `video.items[].length` | Running time under the play button, e.g. `প্রায় ২ মিনিট` | Optional — empty hides the line. Only fill it in once you have checked the real length |
+| `video.items[].youtubeId` | **Set** to `pz9iCrws_FY`. Add another entry and the picker reappears with both | Done — see §2b |
+| `video.items[].label` | Picker button name, and the embedded player's title | Optional while there is only one video — the picker is hidden |
+| `video.items[].length` | Running time under the play button | Optional — empty hides the line. YouTube reports this video as **9:09** if you want it shown |
 | `pricing.oneTime` | The one-time charge, written how you want it read, e.g. `৳25,000` | Optional — empty reads "কথা বলে ঠিক করব" |
 | `pricing.yearlyHosting` | The yearly hosting charge, e.g. `৳6,000` | Optional — empty reads "কথা বলে ঠিক করব" |
 | `formEndpoint` | Formspree / Netlify Forms target — see §4 | Optional — see the fallback below |
@@ -165,71 +165,35 @@ they describe what the screen shows for anyone who cannot see the image.
 
 ---
 
-## 2b. The explainer videos
+## 2b. The explainer video
 
-**Both of your videos are live** in the section between the problem cards and
-the features:
+**Live**, using `https://youtu.be/pz9iCrws_FY` (`youtubeId: "pz9iCrws_FY"`).
+The section sits between the problem cards and the features.
 
-| # | Video | In `CONFIG.video.items` |
-| --- | --- | --- |
-| 1 | `https://youtu.be/0ouIKaPdgOk` | `youtubeId: "0ouIKaPdgOk"` |
-| 2 | `https://youtu.be/pz9iCrws_FY` | `youtubeId: "pz9iCrws_FY"` |
-
-One big player with a picker underneath. Clicking a picker button swaps the
-poster; if a video is already playing, it switches straight to the new one
-instead of dropping the visitor back to a still frame. The picker is a proper
-tab strip — arrow keys, Home and End all work, and only the selected tab is in
-the tab order.
+Video 1 has been removed at your request. The section handles that on its own:
+with a single video the picker strip hides itself and you just get the player.
+Add a second entry to `CONFIG.video.items` and the picker comes back, as a
+keyboard-operable tab strip (arrow keys, Home, End).
 
 **It is a facade player.** Nothing from YouTube's *player* loads until someone
 clicks — the embed is built on click and uses `youtube-nocookie.com`, so no one
 is tracked by YouTube before they have chosen to watch, and the 3G budget holds.
 
-### Please name the two videos
+### Optional bits
 
-The picker buttons currently read **"ভিডিও ১" / "ভিডিও ২"** (and "Video 1" /
-"Video 2" in English), because I have no way to know what each video covers —
-YouTube is blocked from the machine I build on, so I could not watch either one.
-
-Give each a real title in `CONFIG.video.items[n].label` and the picker uses it
-in both languages, e.g.:
-
-```js
-{ youtubeId: "0ouIKaPdgOk", label: "সিস্টেম পরিচিতি", length: "" },
-{ youtubeId: "pz9iCrws_FY", label: "সেশন আর বিল",     length: "" }
-```
-
-A real title sells far better than "Video 1" — this is the one thing in the
-section worth five minutes of your time.
-
-`length` is optional and shown under the button; leave it empty unless you have
-checked the real running time.
-
-### Adding, removing or replacing a video
-
-Edit the `items` array. One entry hides the picker automatically; an empty array
-hides the whole section, so a visitor never meets a play button that does
-nothing. Each entry takes **either** `youtubeId` **or** `mp4` (a self-hosted
-file), so you can mix the two.
-
-### Posters
-
-`CONFIG.video.poster` is `"auto"`, which uses YouTube's own thumbnails — no work
-for you, but it means an image request to `i.ytimg.com` when the section scrolls
-into view. To keep the page entirely first-party, give an item its own `poster`
-file. If a thumbnail cannot be fetched the code falls back
-`maxresdefault → hqdefault → assets/img/video-poster.svg`, which is a plain
-CafeTrack-branded frame — deliberately free of any developer text, because a
-visitor can end up seeing it.
-
-### What I removed
-
-The section used to carry three chips reading "সেশন শুরু আর শেষ · বিল আর রসিদ ·
-দিনশেষের হিসাব". Those described what I had *suggested* recording, not what your
-videos actually show, so with real videos in place they were three claims I
-could not stand behind. They are gone. The poster's alt text is now simply
-"<label> — CafeTrack এর ভিডিও থাম্বনেইল", which is true whatever the video
-contains.
+- **Running time.** Left empty, no length is shown. From the frame you sent me
+  YouTube reports the video as **9:09** — set `length: "৯ মিনিট"` if you want
+  that under the play button. Your call: it is honest either way, and a nine
+  minute runtime may or may not help the click.
+- **Label.** With one video the picker is hidden, so `label` only becomes the
+  embedded player's title. It matters again if you add a second video.
+- **Poster.** `CONFIG.video.poster` is `"auto"`, which uses YouTube's own
+  thumbnail — no work for you, but one image request to `i.ytimg.com` when the
+  section scrolls into view. Point it at your own file to keep the page fully
+  first-party. If a thumbnail cannot be fetched it falls back
+  `maxresdefault → hqdefault → assets/img/video-poster.svg`, a plain
+  CafeTrack-branded frame with no developer text on it, since a visitor can end
+  up seeing it.
 
 ---
 

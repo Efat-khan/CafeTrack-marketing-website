@@ -1258,16 +1258,13 @@ const CONFIG = {
 
     items: [
       {
-        youtubeId: "0ouIKaPdgOk",   // https://youtu.be/0ouIKaPdgOk
-        // TODO (Efat): name this video — it is what the picker button reads.
-        // Left empty it falls back to "ভিডিও ১" / "Video 1".
-        label: "",
-        // Only fill this in once you have checked the real running time.
-        length: ""
-      },
-      {
         youtubeId: "pz9iCrws_FY",   // https://youtu.be/pz9iCrws_FY
+        // With a single video the picker is hidden, so this label is only used
+        // as the embedded player's title. Add a second entry here and the
+        // picker reappears with both.
         label: "",
+        // Shown under the play button; empty hides the line. YouTube reports
+        // this video as 9:09 — set e.g. "৯ মিনিট" if you want that on the page.
         length: ""
       }
     ]
