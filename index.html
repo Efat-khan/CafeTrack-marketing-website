@@ -329,8 +329,23 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   70%{box-shadow:0 0 0 26px rgba(232,25,47,0)}
   100%{box-shadow:0 0 0 0 rgba(232,25,47,0)}
 }
-.video-play-txt{font-weight:800; font-size:1.05rem; text-shadow:0 2px 12px rgba(0,0,0,.6)}
-.video-play-sub{font-size:.9rem; opacity:.85; text-shadow:0 2px 12px rgba(0,0,0,.6)}
+/* The label sits in its own pill so it stays readable over any poster frame,
+   however busy the thumbnail behind it is. */
+.video-play-txt{
+  font-weight:800; font-size:1.02rem; line-height:1.2;
+  background:rgba(10,5,8,.72); border:1px solid rgba(255,255,255,.16);
+  padding:8px 18px; border-radius:999px; backdrop-filter:blur(6px);
+}
+.video-play-sub{
+  font-size:.86rem; background:rgba(10,5,8,.66); padding:4px 12px; border-radius:999px;
+  backdrop-filter:blur(6px);
+}
+@media (max-width:520px){
+  .video-play{gap:10px}
+  .video-play-ring{width:62px; height:62px}
+  .video-play-ring svg{width:24px; height:24px}
+  .video-play-txt{font-size:.92rem; padding:7px 14px}
+}
 .video-meta{
   display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:20px 0 0;
   padding:0; list-style:none;
@@ -671,8 +686,8 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
   <div class="wrap center">
     <div class="reveal">
       <span class="eyebrow" data-i18n="video.eyebrow">চোখে দেখুন</span>
-      <h2 class="sec-title" id="video-h" data-i18n-html="video.h">৯০ সেকেন্ডে <em>পুরো সিস্টেম</em> দেখে নিন</h2>
-      <p class="sec-lede" data-i18n="video.lede">পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। সেশন শুরু থেকে দিনশেষের হিসাব পর্যন্ত — পুরোটা এক ভিডিওতে।</p>
+      <h2 class="sec-title" id="video-h" data-i18n-html="video.h">ভিডিওতে <em>পুরো সিস্টেম</em> দেখে নিন</h2>
+      <p class="sec-lede" data-i18n="video.lede">পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। এক ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।</p>
     </div>
 
     <div class="video-panel reveal" id="video-panel">
@@ -685,10 +700,14 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
           <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
         </span>
         <span class="video-play-txt" data-i18n="video.play">ভিডিওটি চালান</span>
-        <span class="video-play-sub" data-i18n="video.len">প্রায় ৯০ সেকেন্ড</span>
+        <span class="video-play-sub" id="video-length" hidden></span>
       </button>
     </div>
 
+    <!-- TODO (Efat): confirm these three chips and the poster alt text above
+         actually match what your video shows — I have not been able to watch
+         it. They are the video.m1/m2/m3 and video.posterAlt translation keys;
+         correct them or delete the <ul> entirely. -->
     <ul class="video-meta reveal">
       <li data-i18n="video.m1">সেশন শুরু আর শেষ</li>
       <li data-i18n="video.m2">বিল আর রসিদ</li>
@@ -1197,11 +1216,21 @@ const CONFIG = {
   //   mp4       — a path to your own file, e.g. "assets/cafetrack-demo.mp4"
   // While both are empty the whole video section stays hidden, so a visitor
   // never sees a play button that does nothing.
-  // TODO (Efat): record the 90-second walkthrough and fill one of these.
   video: {
-    youtubeId: "",
+    youtubeId: "0ouIKaPdgOk",          // https://youtu.be/0ouIKaPdgOk
     mp4: "",
-    poster: "assets/img/video-poster.svg"
+
+    // "auto" uses YouTube's own thumbnail for the poster — no work for you,
+    // but it means one image request to i.ytimg.com when the section scrolls
+    // into view. To keep the page fully first-party, export a frame of the
+    // video yourself and point this at it, e.g. "assets/img/video-poster.jpg".
+    // Either way nothing from YouTube's *player* loads until someone clicks.
+    poster: "auto",
+
+    // Shown under the play button. Left empty it is hidden — only put a
+    // length here if you have checked it against the real video.
+    // e.g. "প্রায় ২ মিনিট"
+    length: ""
   },
 
   // One cafe = one product: a one-time charge, then yearly hosting.
@@ -1328,9 +1357,9 @@ const T = {
     "pricing.foot":"একাধিক ব্রাঞ্চ থাকলে প্রতিটা ব্রাঞ্চ আলাদা প্রোডাক্ট — কথা বলে ঠিক করে নেব।",
 
     "video.eyebrow":"চোখে দেখুন",
-    "video.h":"৯০ সেকেন্ডে <em>পুরো সিস্টেম</em> দেখে নিন",
-    "video.lede":"পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। সেশন শুরু থেকে দিনশেষের হিসাব পর্যন্ত — পুরোটা এক ভিডিওতে।",
-    "video.play":"ভিডিওটি চালান", "video.len":"প্রায় ৯০ সেকেন্ড",
+    "video.h":"ভিডিওতে <em>পুরো সিস্টেম</em> দেখে নিন",
+    "video.lede":"পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। এক ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।",
+    "video.play":"ভিডিওটি চালান",
     "video.posterAlt":"CafeTrack এর ভিডিও — সেশন শুরু, বিল আর দিনশেষের হিসাব দেখানো হয়েছে।",
     "video.m1":"সেশন শুরু আর শেষ", "video.m2":"বিল আর রসিদ", "video.m3":"দিনশেষের হিসাব",
 
@@ -1505,9 +1534,9 @@ const T = {
     "pricing.foot":"Got more than one branch? Each branch is its own product — we'll sort that out on the call.",
 
     "video.eyebrow":"See it working",
-    "video.h":"The whole system in <em>90 seconds</em>",
-    "video.lede":"Quicker to watch than to read. From starting a session to the day's books — all of it in one video.",
-    "video.play":"Play the video", "video.len":"about 90 seconds",
+    "video.h":"See <em>the whole system</em> working",
+    "video.lede":"Quicker to watch than to read. One video showing how the system actually runs.",
+    "video.play":"Play the video",
     "video.posterAlt":"CafeTrack walkthrough video — starting a session, the bill, and the day's summary.",
     "video.m1":"Starting and ending a session", "video.m2":"The bill and the receipt", "video.m3":"The day's books",
 
@@ -1815,7 +1844,30 @@ const T = {
       console.warn("[CafeTrack] No CONFIG.video.youtubeId or .mp4 set — the video section is hidden.");
       return;                       // section keeps its `hidden` attribute
     }
-    if (v.poster) poster.src = v.poster;
+    // Poster. "auto" walks YouTube's thumbnail sizes and falls back to the
+    // local placeholder if none exist, so the panel is never blank.
+    const LOCAL_POSTER = "assets/img/video-poster.svg";
+    if (v.poster === "auto" && v.youtubeId) {
+      const id = encodeURIComponent(v.youtubeId);
+      const chain = [
+        "https://i.ytimg.com/vi/" + id + "/maxresdefault.jpg",
+        "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg",
+        LOCAL_POSTER
+      ];
+      let i = 0;
+      poster.addEventListener("error", () => {
+        if (++i < chain.length) poster.src = chain[i];
+      });
+      poster.src = chain[0];
+    } else if (v.poster && v.poster !== "auto") {
+      poster.src = v.poster;
+    }
+
+    // Only show a running time if one was actually supplied.
+    const lenEl = $("#video-length");
+    if (v.length) { lenEl.textContent = v.length; lenEl.hidden = false; }
+    else { lenEl.remove(); }
+
     sec.hidden = false;
 
     btn.addEventListener("click", () => {

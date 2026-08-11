@@ -30,7 +30,8 @@ Everything you must supply lives in one `CONFIG` object near the bottom of
 | `facebook` | Your Facebook page URL | Optional — left empty, the footer link greys out |
 | `email` | The email you want shown | Optional — left empty, the footer row is removed |
 | `site` | Your domain once pointed here | Required for correct SEO/OG tags |
-| `video.youtubeId` *or* `video.mp4` | The explainer video — a YouTube id, or a path to your own MP4 | Optional — while both are empty the video section hides itself |
+| `video.youtubeId` | **Already set** to `0ouIKaPdgOk` (your video). Change it to swap videos, or use `video.mp4` for a self-hosted file | Done — see §2b |
+| `video.length` | Running time under the play button, e.g. `প্রায় ২ মিনিট` | Optional — empty hides the line. Only fill it in once you have checked the real length |
 | `pricing.oneTime` | The one-time charge, written how you want it read, e.g. `৳25,000` | Optional — empty reads "কথা বলে ঠিক করব" |
 | `pricing.yearlyHosting` | The yearly hosting charge, e.g. `৳6,000` | Optional — empty reads "কথা বলে ঠিক করব" |
 | `formEndpoint` | Formspree / Netlify Forms target — see §4 | Optional — see the fallback below |
@@ -127,32 +128,46 @@ they describe what the screen shows for anyone who cannot see the image.
 
 ## 2b. The explainer video
 
-There is a video section between the problem cards and the features, built for
-exactly the 90-second walkthrough I suggested instead of a public demo login.
+**This is now live** and pointed at your video:
+`https://youtu.be/0ouIKaPdgOk` (`CONFIG.video.youtubeId = "0ouIKaPdgOk"`).
+The section sits between the problem cards and the features.
 
-**To switch it on**, set one of these in `CONFIG.video`:
+**It is a facade player.** Nothing from YouTube's *player* loads until a visitor
+actually clicks — the embed is created on click and uses `youtube-nocookie.com`,
+so no one is tracked by YouTube before they have chosen to watch. That also
+keeps the 3G budget intact.
 
-- `youtubeId: "dQw4w9WgXcQ"` — just the id from the `watch?v=` URL, or
-- `mp4: "assets/cafetrack-demo.mp4"` — your own file dropped in the repo.
+### Three things to check
 
-While **both are empty the entire section stays hidden**, so nobody ever meets
-a play button that does nothing. A console warning reminds you it is off.
+1. **The poster.** `CONFIG.video.poster` is `"auto"`, which uses YouTube's own
+   thumbnail for the still frame. Zero work for you, but it means one image
+   request to `i.ytimg.com` when the section scrolls into view. If you would
+   rather the page stayed entirely first-party, export a frame of the video and
+   point `poster` at it, e.g. `"assets/img/video-poster.jpg"`. If YouTube has no
+   high-res thumbnail the code falls back automatically —
+   `maxresdefault → hqdefault → the local placeholder` — so the panel is never
+   blank or broken.
 
-**It is a facade player.** Only the poster image loads with the page — nothing
-is requested from YouTube until a visitor actually clicks play. That keeps the
-3G budget intact and means no visitor is tracked by YouTube before they have
-chosen anything (the embed uses `youtube-nocookie.com`).
+2. **The three chips under the player** ("সেশন শুরু আর শেষ · বিল আর রসিদ ·
+   দিনশেষের হিসাব") and the poster's alt text describe what the video shows.
+   **I could not watch your video** — YouTube is blocked from the machine I
+   build on — so those are guesses based on what I suggested recording, not
+   descriptions of your actual footage. Check them against the real video and
+   correct the `video.m1` / `video.m2` / `video.m3` / `video.posterAlt`
+   translation keys, or delete the `<ul class="video-meta">` entirely. There is
+   a `TODO (Efat)` comment in the markup at that spot.
 
-**What to record**, in this order — it mirrors how the page argues:
+3. **The running time.** I originally wrote "৯০ সেকেন্ড / 90 seconds" into the
+   heading and under the play button — that was a number from my own suggestion,
+   not a fact about your video, so I have taken it out. If you want a length
+   shown, set `CONFIG.video.length` (e.g. `"প্রায় ২ মিনিট"`) once you have
+   checked it. Left empty, the line simply does not appear.
 
-1. The floor board with a few devices busy.
-2. Starting a session on a free device.
-3. Ending it, with the itemised bill and **To collect** on screen.
-4. The daily summary sheet at closing.
+### Swapping the video later
 
-Then replace `assets/img/video-poster.svg` with a 1280×720 frame from the video
-(name it `video-poster.jpg` and update `CONFIG.video.poster`). Update the
-`video.posterAlt` translation key if your recording shows something different.
+Change `CONFIG.video.youtubeId` to the new id, or set `CONFIG.video.mp4` to a
+self-hosted file instead. Empty both and the whole section hides itself, so a
+visitor never meets a play button that does nothing.
 
 ---
 
@@ -261,6 +276,6 @@ Two judgement calls worth knowing about:
   either; self-hosting removes two third-party DNS/TLS round trips on a mid-range
   Android over mobile data, and guarantees Bangla never falls back to a serif.
 
-Per your closing caution, there is **no live demo login** anywhere on the site.
-If you later want to show the product without a meeting, record a 90-second
-screen video and link it — do not put shared credentials on a public page.
+Per your closing caution, there is **no live demo login** anywhere on the site —
+the explainer video (§2b) is what shows the product without a meeting. Keep it
+that way: do not put shared credentials on a public page.
