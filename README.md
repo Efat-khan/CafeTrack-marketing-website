@@ -90,10 +90,27 @@ If that is wrong, tell me and I will reconcile the two.
 
 ## 2. Screenshots you need to take
 
-Every image on the site is a placeholder SVG that states, on the image itself,
-which screen to capture and at what width. Replace each file **keeping the same
-filename**, and the site picks it up with no code change. Keep the same aspect
-ratio (1440×900, or 390×844 for the phone shot) so nothing shifts.
+### Replacing them is drag-and-drop
+
+Every image starts as a labelled placeholder SVG that states, on the image
+itself, which screen to capture and at what width. **To use a real screenshot,
+save it into `assets/img/` with the same base name and a `.png` extension.**
+That is the whole procedure — no code to edit, nothing to rename:
+
+```
+assets/img/shot-1-floor-board.png     ← your Dashboard capture
+assets/img/shot-3-station-rates.png   ← your Stations capture
+```
+
+The page checks for each real file as it scrolls into view and swaps it in once
+it has loaded; the "replace this file" caption underneath disappears by itself.
+Anything you have not replaced yet keeps showing its placeholder, so the site
+is never broken half-way through. Prefer JPEGs? Set `CONFIG.shots.ext` to
+`"jpg"`. Once every shot is done you can set `CONFIG.shots.enabled` to `false`
+and point the `src` attributes straight at your files.
+
+Keep the same shape — 1440×900 for the desktop shots, 390×844 for the phone one
+— so nothing shifts on the page.
 
 Screen names below match your product's own left-hand nav.
 
