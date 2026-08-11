@@ -390,6 +390,9 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   font-size:.86rem; color:var(--fg-2); background:var(--surface-2);
   border:1px solid var(--line); border-radius:999px; padding:5px 12px;
 }
+.rate-cap{
+  font-size:.84rem; color:var(--fg-3); margin:18px 0 -8px; font-weight:600;
+}
 .rate-strip{
   display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; padding:0; list-style:none;
 }
@@ -762,11 +765,14 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
       <div>
         <span class="feature-tag num">02</span>
         <h3 data-i18n="f2.h">কন্ট্রোলার অনুযায়ী রেট — যেভাবে আপনি আসলে চার্জ করেন</h3>
-        <p data-i18n="f2.p">১ কন্ট্রোলার এক রেট, ২ কন্ট্রোলার আরেক রেট — আর সেটা প্রতিটা ডিভাইসের জন্য আলাদা করে বসানো যায়। PS5 Pro আর PS4 এর দাম এক হওয়ার দরকার নেই।</p>
+        <p data-i18n="f2.p">কয়টা কন্ট্রোলার চলছে, তার প্রতিটার জন্য আলাদা রেট বসানো যায় — আর সেটা প্রতিটা ডিভাইসের জন্য আলাদা করে। PS5 Pro আর PS4 এর দাম এক হওয়ার দরকার নেই।</p>
         <p data-i18n="p2.f2">মিনিটে বিল হবে নাকি ১৫/৩০/৬০ মিনিটের ব্লকে উঠবে, আর শেষ অঙ্কটা ৳৫ না ৳১০ এ রাউন্ড হবে — সব আপনার হাতে।</p>
+        <p class="rate-cap" data-i18n="f2.rcap">উদাহরণ — একটা PS4 বুথের রেট</p>
         <ul class="rate-strip">
-          <li class="num" data-i18n="f2.r1">১ কন্ট্রোলার ৳১০০/ঘণ্টা</li>
-          <li class="num" data-i18n="f2.r2">২ কন্ট্রোলার ৳১২০/ঘণ্টা</li>
+          <li class="num" data-i18n="f2.r1">১ কন্ট্রোলার ৳১০০</li>
+          <li class="num" data-i18n="f2.r2">২ কন্ট্রোলার ৳১২০</li>
+          <li class="num" data-i18n="f2.r3">৩ কন্ট্রোলার ৳১৬০</li>
+          <li class="num" data-i18n="f2.r4">৪ কন্ট্রোলার ৳২০০</li>
         </ul>
       </div>
       <div class="feature-media">
@@ -1308,9 +1314,11 @@ const T = {
     "f1.c1":"লাইভ টাইমার", "f1.c2":"চলন্ত বিল", "f1.c3":"সময় শেষের প্রোগ্রেস বার",
 
     "f2.h":"কন্ট্রোলার অনুযায়ী রেট — যেভাবে আপনি আসলে চার্জ করেন",
-    "f2.p":"১ কন্ট্রোলার এক রেট, ২ কন্ট্রোলার আরেক রেট — আর সেটা প্রতিটা ডিভাইসের জন্য আলাদা করে বসানো যায়। PS5 Pro আর PS4 এর দাম এক হওয়ার দরকার নেই।",
+    "f2.p":"কয়টা কন্ট্রোলার চলছে, তার প্রতিটার জন্য আলাদা রেট বসানো যায় — আর সেটা প্রতিটা ডিভাইসের জন্য আলাদা করে। PS5 Pro আর PS4 এর দাম এক হওয়ার দরকার নেই।",
     "p2.f2":"মিনিটে বিল হবে নাকি ১৫/৩০/৬০ মিনিটের ব্লকে উঠবে, আর শেষ অঙ্কটা ৳৫ না ৳১০ এ রাউন্ড হবে — সব আপনার হাতে।",
-    "f2.r1":"১ কন্ট্রোলার ৳১০০/ঘণ্টা", "f2.r2":"২ কন্ট্রোলার ৳১২০/ঘণ্টা",
+    "f2.rcap":"উদাহরণ — একটা PS4 বুথের রেট",
+    "f2.r1":"১ কন্ট্রোলার ৳১০০", "f2.r2":"২ কন্ট্রোলার ৳১২০",
+    "f2.r3":"৩ কন্ট্রোলার ৳১৬০", "f2.r4":"৪ কন্ট্রোলার ৳২০০",
 
     "f3.h":"কাউন্টারে যে অঙ্কটা দেখাবে, সেটাই নেওয়া হবে",
     "f3.p":"সেশন শেষ করলে টাকা নেওয়ার আগেই পুরো হিসাব সামনে আসে — কত সময় খেলল, কোন ব্লকে উঠল, রেট কত, রাউন্ডিং কত, ডিসকাউন্ট কত, আর বড় করে To collect।",
@@ -1486,9 +1494,11 @@ const T = {
     "f1.c1":"Live timer", "f1.c2":"Running bill", "f1.c3":"Time-left progress bar",
 
     "f2.h":"Per-controller rates — the way you actually charge",
-    "f2.p":"One rate for one controller, another for two — set separately for every device. A PS5 Pro and a PS4 do not have to cost the same.",
+    "f2.p":"A separate hourly rate for each controller count, set individually for every device. A PS5 Pro and a PS4 do not have to cost the same.",
     "p2.f2":"Bill by the minute or round up to a 15 / 30 / 60 minute block, and round the final amount to the nearest ৳5 or ৳10. All of it is your call.",
-    "f2.r1":"1 controller ৳100/hr", "f2.r2":"2 controllers ৳120/hr",
+    "f2.rcap":"Example — one PS4 booth",
+    "f2.r1":"1 controller ৳100", "f2.r2":"2 controllers ৳120",
+    "f2.r3":"3 controllers ৳160", "f2.r4":"4 controllers ৳200",
 
     "f3.h":"The number on the screen is the number you charge",
     "f3.p":"End a session and the whole calculation appears before any money changes hands — time played, the block it rounded up to, the rate, the rounding, any discount, and To collect in large type.",

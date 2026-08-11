@@ -95,22 +95,43 @@ which screen to capture and at what width. Replace each file **keeping the same
 filename**, and the site picks it up with no code change. Keep the same aspect
 ratio (1440×900, or 390×844 for the phone shot) so nothing shifts.
 
-Take them from your own running system with realistic but **not real** customer
-names. Save as JPG or PNG, then rename to match — or keep the `.svg` filename by
-updating the `src` in `index.html` if you prefer real extensions.
+Screen names below match your product's own left-hand nav.
 
 | # | File | Product screen | Capture at | Must show |
 | --- | --- | --- | --- | --- |
-| 1 | `shot-1-floor-board.svg` | Dashboard — floor board | 1440px | 3–4 devices busy, the rest free; player name, elapsed timer, running bill, progress meter |
-| 2 | `shot-2-end-session-bill.svg` | End session dialog | 1440px | The itemised bill: time, block, rate, rounding, discount, **To collect** |
-| 3 | `shot-3-station-rates.svg` | Stations | 1440px | One device's per-controller rates (৳100 / ৳120) and rounding settings |
-| 4 | `shot-4-daily-summary.svg` | Daily summary sheet | 1440px | Takings by device type, expenses by category, drawer movements, payment split |
-| 5 | `shot-5-heatmap.svg` | Analytics | 1440px | The 7 × 24 peak-hours heatmap plus device utilisation bars |
-| 6 | `shot-6-shift-drawer.svg` | Shifts — drawer at close | 1440px | The expected-cash arithmetic line by line vs counted cash |
-| 7 | `shot-7-qr-checkin.svg` | Public QR check-in page | **390px (phone)** | What a customer sees after scanning a device's QR |
+| 1 | `shot-1-floor-board.svg` | **Dashboard** → THE FLOOR | 1440px | **3–4 sessions actually running** — player name, elapsed timer, cost so far, progress bar |
+| 2 | `shot-2-end-session-bill.svg` | **Dashboard** → End session dialog | 1440px | The itemised bill: time, block, rate, rounding, discount, **To collect** |
+| 3 | `shot-3-station-rates.svg` | **Stations** | 1440px | The BY CONTROLLERS column readable end to end (1× / 2× / 3× / 4×), the MAX column, the QR Preview link |
+| 4 | `shot-4-daily-summary.svg` | **Summary** | 1440px | Takings by device type, expenses by category, drawer movements, payment split |
+| 5 | `shot-5-heatmap.svg` | **Analytics** | 1440px | The 7 × 24 peak-hours heatmap plus device utilisation bars |
+| 6 | `shot-6-shift-drawer.svg` | **Shifts** — drawer at close | 1440px | The expected-cash arithmetic line by line vs counted cash |
+| 7 | `shot-7-qr-checkin.svg` | The public QR check-in page | **390px (phone)** | What a customer sees after scanning a device's QR |
 
 **Shot 1 appears twice** (hero and feature 01), so it is the one worth getting
 right first.
+
+### Two things that will make or break these shots
+
+**1. Start some sessions before you capture the floor.** The Dashboard shot you
+sent me had *0 of 9 devices in play* — every tile read "Free" with a Start
+session button, and the In-play table said "Nothing in play." But the sentence
+printed next to that image on the site promises the tile shows *who is playing,
+the elapsed timer, the running bill, and the progress against booked time*. An
+empty floor shows none of those, so the picture would quietly contradict the
+copy. Start three or four sessions with plausible names, let a couple of minutes
+run so the timers and costs are non-zero, then capture.
+
+**2. Capture in Dark mode.** Your product's default is light with a violet
+accent; this site is dark. There is a **Dark mode** toggle at the bottom of your
+sidebar — screenshots taken with it on will sit properly inside the dark browser
+frames instead of glowing white against them. Do all seven the same way.
+
+### The rate ladder on the site is real
+
+The example rates shown in feature 02 — 1 controller ৳100, 2 → ৳120, 3 → ৳160,
+4 → ৳200 — are your PS4 Booth rates, read off the Stations screen you sent, and
+labelled on the page as an example. Change them in the `f2.r1`–`f2.r4`
+translation keys if you would rather show a different device or round numbers.
 
 ### The OG image
 
