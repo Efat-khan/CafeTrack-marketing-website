@@ -139,7 +139,7 @@ p{margin:0 0 1em}
 /* Grid/flex items default to min-width:auto, which lets a long unbreakable
    string (e.g. the URL chip in a browser frame) widen its track past the
    viewport. This is the guard against horizontal scroll at 360px. */
-.hero-grid>*,.feature>*,.cta-grid>*,.early-grid>*,.ftr-grid>*,.cards>*,.steps>*{min-width:0}
+.hero-grid>*,.feature>*,.early-grid>*,.ftr-grid>*,.cards>*,.steps>*{min-width:0}
 .frame,.frame-bar,.feature-media{min-width:0}
 section{padding:clamp(56px,8vw,104px) 0; scroll-margin-top:78px}
 .eyebrow{
@@ -518,24 +518,13 @@ details[open] summary::after{transform:rotate(-135deg); border-color:var(--accen
   background:linear-gradient(180deg, var(--bg-2), var(--bg));
   border-top:1px solid var(--line-soft);
 }
-.cta-grid{display:grid; gap:clamp(28px,4vw,52px); align-items:start}
-@media (min-width:900px){ .cta-grid{grid-template-columns:1fr 1fr} }
-.contact-box{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
-  padding:clamp(22px,4vw,32px); box-shadow:var(--shadow-sm);
-}
-.field{margin-bottom:16px}
-.field label{display:block; font-weight:600; font-size:.94rem; margin-bottom:7px}
-.field input{
-  width:100%; padding:13px 15px; border-radius:11px; border:1px solid var(--line);
-  background:var(--bg-2); color:var(--fg); font:inherit; font-size:1rem; min-height:50px;
-}
-.field input::placeholder{color:var(--fg-3)}
-.field input:focus{border-color:var(--accent)}
-.form-note{font-size:.86rem; color:var(--fg-3); margin:14px 0 0}
-.form-status{margin:14px 0 0; font-weight:600; color:var(--money); min-height:1.4em}
+/* One column now that the form is gone: keep the block narrow and centred so
+   the line length stays readable on wide screens. */
+.cta-grid{max-width:640px; margin-inline:auto; text-align:center}
+.cta-grid .sec-lede{margin-inline:auto}
 .phone-line{
-  display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  background:var(--surface); border:1px solid var(--line);
   border-radius:14px; padding:16px 20px; margin-top:20px; text-decoration:none; flex-wrap:wrap;
 }
 .phone-line b{font-size:1.2rem; letter-spacing:.02em}
@@ -1100,36 +1089,6 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         <b class="num" id="phone-text">+880 1XXX-XXXXXX</b>
       </a>
     </div>
-
-    <div class="contact-box reveal">
-      <h3 style="margin-bottom:.2em" data-i18n="form.h">অথবা নাম্বার রেখে যান</h3>
-      <p style="color:var(--fg-2); font-size:.96rem" data-i18n="form.lede">আমি নিজে ফোন দেব।</p>
-      <form id="contact-form" novalidate>
-        <div class="field">
-          <label for="f-name" data-i18n="form.name">আপনার নাম</label>
-          <input id="f-name" name="name" type="text" autocomplete="name" required
-                 data-i18n-attr="placeholder:form.namePh" placeholder="যেমন: রাকিব হাসান">
-        </div>
-        <div class="field">
-          <label for="f-cafe" data-i18n="form.cafe">ক্যাফের নাম</label>
-          <input id="f-cafe" name="cafe" type="text" required
-                 data-i18n-attr="placeholder:form.cafePh" placeholder="যেমন: Game n Chill">
-        </div>
-        <div class="field">
-          <label for="f-phone" data-i18n="form.phone">ফোন নাম্বার</label>
-          <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required
-                 class="num" data-i18n-attr="placeholder:form.phonePh" placeholder="01XXXXXXXXX">
-        </div>
-        <div class="field">
-          <label for="f-area" data-i18n="form.area">এলাকা</label>
-          <input id="f-area" name="area" type="text"
-                 data-i18n-attr="placeholder:form.areaPh" placeholder="যেমন: উত্তরা, ঢাকা">
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%" data-i18n="form.submit">পাঠিয়ে দিন</button>
-        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-        <p class="form-note" data-i18n="form.note">তাড়া থাকলে সরাসরি WhatsApp করুন — সেটাই দ্রুততম।</p>
-      </form>
-    </div>
   </div>
 </section>
 
@@ -1278,14 +1237,7 @@ const CONFIG = {
   pricing: {
     oneTime: "",
     yearlyHosting: ""
-  },
-
-  // Contact form target. Leave "" and the form falls back to opening
-  // WhatsApp with the four fields already typed out — no data is lost.
-  // TODO (Efat): paste a Formspree endpoint here to collect them by email
-  // instead, e.g. "https://formspree.io/f/xxxxxxxx".
-  // (Netlify Forms works too — see README.md.)
-  formEndpoint: ""
+  }
 };
 
 /* ==================================================================
@@ -1438,17 +1390,6 @@ const T = {
     "cta.lede":"WhatsApp এ মেসেজ দিন, সময় ঠিক করে আপনার ক্যাফের ডিভাইস ধরে ধরে দেখিয়ে দেব। কেনার কথা এখনই বলতে হবে না।",
     "cta.btn":"WhatsApp এ ডেমো নিন", "cta.callus":"সরাসরি ফোন করুন",
 
-    "form.h":"অথবা নাম্বার রেখে যান", "form.lede":"আমি নিজে ফোন দেব।",
-    "form.name":"আপনার নাম", "form.namePh":"যেমন: রাকিব হাসান",
-    "form.cafe":"ক্যাফের নাম", "form.cafePh":"যেমন: Game n Chill",
-    "form.phone":"ফোন নাম্বার", "form.phonePh":"01XXXXXXXXX",
-    "form.area":"এলাকা", "form.areaPh":"যেমন: উত্তরা, ঢাকা",
-    "form.submit":"পাঠিয়ে দিন",
-    "form.note":"তাড়া থাকলে সরাসরি WhatsApp করুন — সেটাই দ্রুততম।",
-    "form.err":"নাম, ক্যাফের নাম আর ফোন নাম্বার লাগবে।",
-    "form.ok":"পেয়েছি — শিগগিরই ফোন দেব।",
-    "form.wa":"WhatsApp খুলে দিচ্ছি, শুধু Send চাপুন।",
-    "form.fail":"পাঠানো গেল না। সরাসরি WhatsApp করুন।",
 
     "shots.cap1":"স্ক্রিনশট ১ — ড্যাশবোর্ডের ফ্লোর বোর্ড (১৪৪০px এ তুলুন)",
     "shots.cap2":"স্ক্রিনশট ২ — End session ডায়ালগ (১৪৪০px)",
@@ -1618,17 +1559,6 @@ const T = {
     "cta.lede":"Message me on WhatsApp, we pick a time, and I walk you through it against your own cafe's devices. No need to talk about buying anything yet.",
     "cta.btn":"Book a demo on WhatsApp", "cta.callus":"Or call me directly",
 
-    "form.h":"Or just leave your number", "form.lede":"I will call you myself.",
-    "form.name":"Your name", "form.namePh":"e.g. Rakib Hasan",
-    "form.cafe":"Cafe name", "form.cafePh":"e.g. Game n Chill",
-    "form.phone":"Phone number", "form.phonePh":"01XXXXXXXXX",
-    "form.area":"Area", "form.areaPh":"e.g. Uttara, Dhaka",
-    "form.submit":"Send it",
-    "form.note":"In a hurry? WhatsApp is the fastest way to reach me.",
-    "form.err":"Name, cafe name and phone number are needed.",
-    "form.ok":"Got it — I'll call you shortly.",
-    "form.wa":"Opening WhatsApp — just press Send.",
-    "form.fail":"That didn't send. Please WhatsApp me directly.",
 
     "shots.cap1":"Screenshot 1 — dashboard floor board (capture at 1440px)",
     "shots.cap2":"Screenshot 2 — End session dialog (1440px)",
@@ -1669,9 +1599,8 @@ const T = {
   let videoRelabel = null;      // set by initVideo, called on language change
 
   /* ---------- WhatsApp links ---------- */
-  function waHref(lang, extra) {
-    const msg = T[lang]["wa.msg"] + (extra || "");
-    return "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(msg);
+  function waHref(lang) {
+    return "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(T[lang]["wa.msg"]);
   }
   function applyContact(lang) {
     const href = waHref(lang);
@@ -1820,47 +1749,6 @@ const T = {
   } else {
     fab.classList.add("show");
   }
-
-  /* ---------- contact form ---------- */
-  const form = $("#contact-form"), status = $("#form-status");
-  form.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    const lang = root.lang;
-    const d = {
-      name:  $("#f-name").value.trim(),
-      cafe:  $("#f-cafe").value.trim(),
-      phone: $("#f-phone").value.trim(),
-      area:  $("#f-area").value.trim()
-    };
-    if (!d.name || !d.cafe || !d.phone) {
-      status.style.color = "var(--warn)";
-      status.textContent = T[lang]["form.err"];
-      return;
-    }
-    status.style.color = "var(--money)";
-
-    // No endpoint configured yet: hand the details to WhatsApp instead of
-    // dropping them. Nothing the visitor typed is lost.
-    if (!CONFIG.formEndpoint) {
-      status.textContent = T[lang]["form.wa"];
-      const extra = d.cafe + "\nনাম: " + d.name + "\nফোন: " + d.phone + (d.area ? "\nএলাকা: " + d.area : "");
-      window.open(waHref(lang, extra), "_blank", "noopener");
-      return;
-    }
-    try {
-      const res = await fetch(CONFIG.formEndpoint, {
-        method: "POST",
-        headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify(d)
-      });
-      if (!res.ok) throw new Error("bad status");
-      status.textContent = T[lang]["form.ok"];
-      form.reset();
-    } catch (e) {
-      status.style.color = "var(--warn)";
-      status.textContent = T[lang]["form.fail"];
-    }
-  });
 
   /* ---------- pricing amounts ----------
      Only ever prints what CONFIG.pricing holds. Empty stays "to be agreed",

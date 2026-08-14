@@ -35,7 +35,6 @@ Everything you must supply lives in one `CONFIG` object near the bottom of
 | `video.items[].length` | Running time under the play button | Optional — empty hides the line. YouTube reports this video as **9:09** if you want it shown |
 | `pricing.oneTime` | The one-time charge, written how you want it read, e.g. `৳25,000` | Optional — empty reads "কথা বলে ঠিক করব" |
 | `pricing.yearlyHosting` | The yearly hosting charge, e.g. `৳6,000` | Optional — empty reads "কথা বলে ঠিক করব" |
-| `formEndpoint` | Formspree / Netlify Forms target — see §4 | Optional — see the fallback below |
 
 There are also four `TODO (Efat)` comments in the `<head>` where the placeholder
 domain `cafetrack.example.com` appears in the canonical, OG and Twitter tags.
@@ -218,23 +217,16 @@ along with the text.
 
 ---
 
-## 4. Where the contact form goes
+## 4. How people get in touch
 
-Right now `CONFIG.formEndpoint` is empty, and the form has a deliberate
-fallback: on submit it opens WhatsApp with the four fields (নাম, ক্যাফের নাম,
-ফোন, এলাকা) already typed into the message, so nothing a visitor entered is
-lost. That works fine as a permanent choice.
+There is no contact form. Every route on the page is a direct one: the
+WhatsApp buttons (hero, final CTA and the floating button), and the phone line
+in the final CTA that dials `CONFIG.whatsapp` through a `tel:` link. Both are
+driven by `CONFIG.whatsapp` / `CONFIG.phoneDisplay`, so setting the number once
+updates all of them.
 
-If you would rather collect them by email:
-
-- **Formspree** — sign up, create a form, paste the endpoint
-  (`https://formspree.io/f/xxxxxxxx`) into `CONFIG.formEndpoint`. Submissions
-  arrive in your inbox. Free tier is 50/month.
-- **Netlify Forms** — if you host on Netlify (§5), instead add
-  `netlify` and `name="contact"` attributes to the `<form>` tag and Netlify
-  captures submissions with no endpoint at all.
-- **Google Forms** — possible but fiddly (you need the `formResponse` URL and
-  the `entry.NNNN` field IDs); Formspree is less work.
+A cafe owner reaching you on WhatsApp starts a conversation you can answer the
+same minute, which is the point — nothing to check an inbox for.
 
 ---
 
