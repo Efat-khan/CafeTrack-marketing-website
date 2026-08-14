@@ -10,7 +10,7 @@ framework, no npm install. Open the file, or upload the folder anywhere.
 index.html                    the whole site (markup + CSS + JS + translations)
 assets/fonts.css              @font-face rules for the self-hosted fonts
 assets/fonts/*.woff2          Noto Sans Bengali + Inter, Bangla/Latin subsets only
-assets/img/shot-*.svg         labelled screenshot placeholders — replace these
+assets/img/*.png              the product screenshots shown on the page
 assets/img/video-poster.svg   branded fallback frame if a YouTube thumbnail fails
 assets/img/og-image.svg       1200×630 link-preview placeholder
 tools-regenerate-fonts.py     only needed if you change font weights
@@ -87,60 +87,56 @@ If that is wrong, tell me and I will reconcile the two.
 
 ---
 
-## 2. Screenshots you need to take
+## 2. Screenshots
 
-### Replacing them is drag-and-drop
+Every screenshot on the page is a real capture now — the labelled placeholder
+SVGs and the swap-them-in-automatically machinery are gone, and each `<img>`
+points straight at its file. Six files cover seven slots, because the dashboard
+capture is used twice:
 
-Every image starts as a labelled placeholder SVG that states, on the image
-itself, which screen to capture and at what width. **To use a real screenshot,
-save it into `assets/img/` with the same base name and a `.png` extension.**
-That is the whole procedure — no code to edit, nothing to rename:
+| # | File | Product screen | Shown in |
+| --- | --- | --- | --- |
+| 1 | `admin.png` | **Dashboard** → THE FLOOR | hero + feature 01 |
+| 2 | `station.png` | **Stations** — per-controller rates | feature 02 |
+| 3 | `report.png` | **Dashboard** → End session dialog | feature 03 |
+| 4 | `summary.png` | **Summary** — the daily/monthly sheet | feature 04 |
+| 5 | `cafetracker-qr.png` | The public QR check-in page (phone) | feature 05 |
+| 6 | `analysis.png` | **Analytics** — peak hours + utilisation | feature 06 |
 
-```
-assets/img/shot-1-floor-board.png     ← your Dashboard capture
-assets/img/shot-3-station-rates.png   ← your Stations capture
-```
+To swap one out, save the new capture over the same filename — or point the
+`src` at a new one and update its `width`/`height` to the file's real pixel
+size. Those two attributes only reserve the right space while the image loads;
+if they disagree with the file, the page jumps as it loads.
 
-The page checks for each real file as it scrolls into view and swaps it in once
-it has loaded; the "replace this file" caption underneath disappears by itself.
-Anything you have not replaced yet keeps showing its placeholder, so the site
-is never broken half-way through. Prefer JPEGs? Set `CONFIG.shots.ext` to
-`"jpg"`. Once every shot is done you can set `CONFIG.shots.enabled` to `false`
-and point the `src` attributes straight at your files.
+### They are cropped on the page, full size on click
 
-Keep the same shape — 1440×900 for the desktop shots, 390×844 for the phone one
-— so nothing shifts on the page.
+The captures are whole-page and very tall (`analysis.png` is 1910×2525). Shown
+at full height, one screenshot would run for a screen and a half and shrink its
+own detail to nothing, so each sits in a frame cropped from the top —
+`--shot-max`, 440px by default, 520px for the hero — with a fade at the cut and
+a **View full size** button. Clicking opens the whole image in a dialog that
+closes on Escape, on the close button, or on a click outside it.
 
-Screen names below match your product's own left-hand nav.
+Nothing about that needs configuring. A shorter capture that already fits under
+the cap simply never gets cropped.
 
-| # | File | Product screen | Capture at | Must show |
-| --- | --- | --- | --- | --- |
-| 1 | `shot-1-floor-board.svg` | **Dashboard** → THE FLOOR | 1440px | **3–4 sessions actually running** — player name, elapsed timer, cost so far, progress bar |
-| 2 | `shot-2-end-session-bill.svg` | **Dashboard** → End session dialog | 1440px | The itemised bill: time, block, rate, rounding, discount, **To collect** |
-| 3 | `shot-3-station-rates.svg` | **Stations** | 1440px | The BY CONTROLLERS column readable end to end (1× / 2× / 3× / 4×), the MAX column, the QR Preview link |
-| 4 | `shot-4-daily-summary.svg` | **Summary** | 1440px | Takings by device type, expenses by category, drawer movements, payment split |
-| 5 | `shot-5-heatmap.svg` | **Analytics** | 1440px | The 7 × 24 peak-hours heatmap plus device utilisation bars |
-| 6 | `shot-6-shift-drawer.svg` | **Shifts** — drawer at close | 1440px | The expected-cash arithmetic line by line vs counted cash |
-| 7 | `shot-7-qr-checkin.svg` | The public QR check-in page | **390px (phone)** | What a customer sees after scanning a device's QR |
+### Two things worth fixing when you re-capture
 
-**Shot 1 appears twice** (hero and feature 01), so it is the one worth getting
-right first.
-
-### Two things that will make or break these shots
-
-**1. Start some sessions before you capture the floor.** The Dashboard shot you
-sent me had *0 of 9 devices in play* — every tile read "Free" with a Start
-session button, and the In-play table said "Nothing in play." But the sentence
+**1. Start some sessions before you capture the floor.** The Dashboard shot on
+the page has *0 of 9 devices in play* — every tile reads "Free" with a Start
+session button, and the In-play table says "Nothing in play." But the sentence
 printed next to that image on the site promises the tile shows *who is playing,
 the elapsed timer, the running bill, and the progress against booked time*. An
 empty floor shows none of those, so the picture would quietly contradict the
 copy. Start three or four sessions with plausible names, let a couple of minutes
-run so the timers and costs are non-zero, then capture.
+run so the timers and costs are non-zero, then re-capture.
 
 **2. Capture in Dark mode.** Your product's default is light with a violet
 accent; this site is dark. There is a **Dark mode** toggle at the bottom of your
 sidebar — screenshots taken with it on will sit properly inside the dark browser
-frames instead of glowing white against them. Do all seven the same way.
+frames instead of glowing white against them. The captures on the page now are
+light-mode, so this is the single biggest visual upgrade available. Do them all
+the same way.
 
 ### The rate ladder on the site is real
 
@@ -158,9 +154,10 @@ containing: the CafeTrack wordmark, the headline *"আপনার গেমি�
 `og-image.jpg` under 200KB and update the three `og:image` / `twitter:image`
 tags in the `<head>`.
 
-Also update each screenshot's **alt text** if your real screens differ — the alt
+Also update each screenshot's **alt text** if you replace a capture — the alt
 strings are the `shots.alt1`–`shots.alt7` keys in the translations object, and
-they describe what the screen shows for anyone who cannot see the image.
+they describe what the screen shows for anyone who cannot see the image. They
+double as the caption under the full-size view.
 
 ---
 

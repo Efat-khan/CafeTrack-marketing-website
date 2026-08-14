@@ -66,11 +66,16 @@
   --warn:#fbbf24;
   --wa:#25d366;
   --wa-ink:#04231a;
-  --shadow:0 24px 60px -24px rgba(0,0,0,.8);
-  --shadow-sm:0 8px 24px -12px rgba(0,0,0,.65);
+  /* Two-layer shadows: a tight contact shadow plus a wide soft one. A single
+     blur at this size reads as fog; the pair reads as a lifted surface. */
+  --shadow:0 2px 4px -2px rgba(0,0,0,.55), 0 28px 64px -28px rgba(0,0,0,.85);
+  --shadow-sm:0 1px 2px -1px rgba(0,0,0,.5), 0 10px 26px -14px rgba(0,0,0,.7);
   --glow:0 0 60px -12px rgba(232,25,47,.45);
+  --ring:0 0 0 1px rgba(255,255,255,.04) inset;
+  --radius-sm:12px;
   --radius:16px;
   --radius-lg:22px;
+  --ease:cubic-bezier(.22,.8,.3,1);
   --maxw:1160px;
   /* Noto sits in BOTH stacks on purpose: some strings stay Bangla even in
      English mode (the WhatsApp button), and Inter has no Bengali glyphs — so
@@ -90,9 +95,10 @@
     --grad-a:#e01046; --grad-b:#b3138c; --grad-c:#7020c4;
     --money:#047857; --money-soft:rgba(4,120,87,.10);
     --warn:#a35a06;
-    --shadow:0 24px 55px -28px rgba(60,16,26,.32);
-    --shadow-sm:0 8px 22px -14px rgba(60,16,26,.25);
+    --shadow:0 2px 4px -2px rgba(60,16,26,.10), 0 26px 58px -30px rgba(60,16,26,.36);
+    --shadow-sm:0 1px 2px -1px rgba(60,16,26,.08), 0 10px 24px -16px rgba(60,16,26,.28);
     --glow:0 0 60px -18px rgba(196,13,38,.25);
+    --ring:0 0 0 1px rgba(26,10,15,.03) inset;
   }
 }
 :root[data-theme="light"]{
@@ -104,9 +110,10 @@
   --grad-a:#e01046; --grad-b:#b3138c; --grad-c:#7020c4;
   --money:#047857; --money-soft:rgba(4,120,87,.10);
   --warn:#a35a06;
-  --shadow:0 24px 55px -28px rgba(60,16,26,.32);
-  --shadow-sm:0 8px 22px -14px rgba(60,16,26,.25);
+  --shadow:0 2px 4px -2px rgba(60,16,26,.10), 0 26px 58px -30px rgba(60,16,26,.36);
+  --shadow-sm:0 1px 2px -1px rgba(60,16,26,.08), 0 10px 24px -16px rgba(60,16,26,.28);
   --glow:0 0 60px -18px rgba(196,13,38,.25);
+  --ring:0 0 0 1px rgba(26,10,15,.03) inset;
 }
 
 /* ============================ BASE ============================ */
@@ -158,17 +165,19 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   display:inline-flex; align-items:center; justify-content:center; gap:9px;
   padding:14px 22px; border-radius:12px; border:1px solid transparent;
   font:inherit; font-weight:700; font-size:1rem; text-decoration:none;
-  cursor:pointer; transition:transform .16s ease, background .16s ease, border-color .16s ease;
-  min-height:50px;
+  cursor:pointer; min-height:50px; box-shadow:var(--shadow-sm);
+  transition:transform .16s var(--ease), box-shadow .16s var(--ease),
+             background .16s ease, border-color .16s ease, color .16s ease;
 }
-.btn:hover{transform:translateY(-2px)}
-@media (prefers-reduced-motion: reduce){ .btn:hover{transform:none} }
+.btn:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+.btn:active{transform:translateY(0); box-shadow:var(--shadow-sm)}
+@media (prefers-reduced-motion: reduce){ .btn:hover,.btn:active{transform:none} }
 .btn-wa{background:var(--wa); color:var(--wa-ink)}
 .btn-wa:hover{background:#1fbe5b}
 .btn-primary{background:var(--accent-strong); color:var(--accent-ink)}
 .btn-primary:hover{background:var(--accent)}
-.btn-ghost{background:transparent; color:var(--fg); border-color:var(--line)}
-.btn-ghost:hover{border-color:var(--accent); color:var(--accent)}
+.btn-ghost{background:var(--surface); color:var(--fg); border-color:var(--line); box-shadow:none}
+.btn-ghost:hover{border-color:var(--accent); color:var(--accent); box-shadow:var(--shadow-sm)}
 .btn-sm{padding:9px 15px; min-height:42px; font-size:.92rem; border-radius:10px}
 .btn svg{flex:0 0 auto}
 
@@ -177,7 +186,14 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   position:sticky; top:0; z-index:60;
   background:color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter:saturate(140%) blur(10px);
-  border-bottom:1px solid var(--line-soft);
+  border-bottom:1px solid transparent;
+  transition:border-color .2s ease, box-shadow .2s var(--ease),
+             background .2s ease;
+}
+/* only once the page has moved — at rest the bar should sit flat on the hero */
+.hdr.stuck{
+  border-bottom-color:var(--line-soft); box-shadow:var(--shadow-sm);
+  background:color-mix(in srgb, var(--bg) 94%, transparent);
 }
 .hdr-in{display:flex; align-items:center; gap:14px; height:70px}
 .brand{display:flex; align-items:center; gap:10px; text-decoration:none; font-weight:800; font-size:1.2rem; letter-spacing:-.02em}
@@ -266,17 +282,68 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:var(--sans);
 }
 .frame img{width:100%; display:block; background:var(--bg-2)}
+/* The captures are whole-page and very tall. Showing them at full height makes
+   a feature row scroll for a screen and a half and shrinks the detail to
+   nothing, so each one is cropped from the top to a readable height and opens
+   full size on click. */
+.frame-shot{position:relative}
+.frame-shot img{max-height:var(--shot-max,440px); object-fit:cover; object-position:top center}
+.frame-shot::after{
+  content:""; position:absolute; inset:auto 0 0 0; height:74px; pointer-events:none;
+  background:linear-gradient(180deg, transparent, color-mix(in srgb, var(--surface) 92%, transparent));
+}
+.shot-zoom{
+  display:block; width:100%; padding:0; border:0; background:none; cursor:zoom-in;
+  font:inherit; color:inherit; text-align:start;
+}
+.shot-zoom-hint{
+  position:absolute; z-index:2; inset-block-end:12px; inset-inline-end:12px;
+  display:inline-flex; align-items:center; gap:7px; padding:7px 13px; border-radius:999px;
+  font-size:.82rem; font-weight:700; font-family:var(--sans);
+  background:color-mix(in srgb, var(--bg) 78%, transparent); color:var(--fg);
+  border:1px solid var(--line); backdrop-filter:blur(6px);
+  transition:transform .16s var(--ease), border-color .16s ease;
+}
+.shot-zoom:hover .shot-zoom-hint,.shot-zoom:focus-visible .shot-zoom-hint{
+  transform:translateY(-2px); border-color:var(--accent);
+}
+@media (prefers-reduced-motion: reduce){ .shot-zoom:hover .shot-zoom-hint{transform:none} }
+
+/* full-size viewer */
+.lightbox{
+  border:0; padding:0; background:transparent; max-width:min(1180px,94vw); max-height:92vh;
+  overflow:visible; color:var(--fg);
+}
+.lightbox::backdrop{background:rgba(6,3,5,.82); backdrop-filter:blur(4px)}
+.lightbox img{
+  width:100%; max-height:86vh; object-fit:contain; border-radius:var(--radius);
+  border:1px solid var(--line); background:var(--bg-2); box-shadow:var(--shadow);
+}
+.lightbox-close{
+  position:absolute; top:-14px; inset-inline-end:-8px; width:44px; height:44px; border-radius:50%;
+  display:grid; place-items:center; cursor:pointer; font-size:1.4rem; line-height:1;
+  background:var(--surface); color:var(--fg); border:1px solid var(--line); box-shadow:var(--shadow-sm);
+}
+.lightbox-close:hover{border-color:var(--accent); color:var(--accent)}
+.lightbox-cap{
+  margin:14px 0 0; text-align:center; font-size:.92rem; color:var(--fg-2);
+}
+
 .frame-phone{max-width:300px; margin-inline:auto; border-radius:30px}
 .frame-phone .frame-bar{justify-content:center; padding:9px}
-.shot-cap{
-  margin-top:10px; font-size:.84rem; color:var(--fg-3); text-align:center; font-family:var(--sans);
-}
+/* the phone capture is already the right shape — no crop, no fade */
+.frame-phone.frame-shot img{max-height:none; object-fit:contain}
+.frame-phone.frame-shot::after{display:none}
 
 /* ============================ PROBLEM CARDS ============================ */
 .cards{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-top:36px}
 .card{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  padding:24px 22px; box-shadow:var(--shadow-sm);
+  padding:24px 22px; box-shadow:var(--shadow-sm), var(--ring);
+  transition:transform .2s var(--ease), border-color .2s ease, box-shadow .2s var(--ease);
+}
+@media (hover:hover){
+  .card:hover{transform:translateY(-3px); border-color:var(--accent); box-shadow:var(--shadow)}
 }
 .card-q{font-size:1.12rem; font-weight:700; margin:0 0 .5em}
 .card p{color:var(--fg-2); font-size:.98rem; margin:0}
@@ -405,8 +472,10 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
 .steps{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); margin-top:40px}
 .step{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-  padding:26px 24px; position:relative;
+  padding:26px 24px; position:relative; box-shadow:var(--shadow-sm), var(--ring);
+  transition:transform .2s var(--ease), border-color .2s ease;
 }
+@media (hover:hover){ .step:hover{transform:translateY(-3px); border-color:var(--accent)} }
 .step-n{
   width:44px;height:44px;border-radius:13px; display:grid; place-items:center;
   background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:1.15rem;
@@ -463,6 +532,10 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   background:linear-gradient(90deg,var(--grad-a),var(--grad-b));
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
+.price-row-amount.is-tbd{
+  font-size:1.06rem; font-weight:700; line-height:1.45; color:var(--fg);
+  background:none; -webkit-background-clip:border-box; background-clip:border-box;
+}
 /* the gradient text needs a solid fallback wherever background-clip is missing */
 @supports not ((-webkit-background-clip:text) or (background-clip:text)){
   .price-row-amount{color:var(--accent); background:none}
@@ -489,7 +562,7 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
 .early-list{list-style:none; padding:0; margin:0; display:grid; gap:14px}
 .early-list li{
   display:flex; gap:13px; background:var(--surface); border:1px solid var(--line);
-  border-radius:14px; padding:18px 20px;
+  border-radius:14px; padding:18px 20px; box-shadow:var(--ring);
 }
 .early-list strong{display:block; margin-bottom:3px}
 .early-list span{color:var(--fg-2); font-size:.96rem}
@@ -498,7 +571,10 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
 .faq-list{max-width:820px; margin:36px auto 0; display:grid; gap:12px}
 details{
   background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  transition:border-color .2s ease, box-shadow .2s var(--ease);
 }
+details:hover{border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
+details[open]{box-shadow:var(--shadow-sm)}
 details[open]{border-color:var(--accent)}
 summary{
   cursor:pointer; list-style:none; padding:19px 54px 19px 22px; font-weight:700;
@@ -633,18 +709,23 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
     </div>
 
     <div class="feature-media">
-      <!-- SCREENSHOT 1 — dashboard floor board, capture at 1440px wide -->
-      <div class="frame">
+      <!-- SCREENSHOT — dashboard floor board (admin.png) -->
+      <div class="frame frame-shot" style="--shot-max:520px">
         <div class="frame-bar" aria-hidden="true">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
           <span class="frame-url">cafetrack.app/dashboard</span>
         </div>
-        <img src="assets/img/admin.png" width="1440" height="900"
-             fetchpriority="high" decoding="async"
-             data-i18n-attr="alt:shots.alt1"
-             alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+        <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+          <img src="assets/img/admin.png" width="1910" height="2045"
+               fetchpriority="high" decoding="async"
+               data-i18n-attr="alt:shots.alt1"
+               alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+          <span class="shot-zoom-hint" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+            <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+          </span>
+        </button>
       </div>
-      <p class="shot-cap" data-i18n="shots.cap1">স্ক্রিনশট ১ — ড্যাশবোর্ডের ফ্লোর বোর্ড (১৪৪০px এ তুলুন)</p>
     </div>
   </div>
 </section>
@@ -739,12 +820,18 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         </ul>
       </div>
       <div class="feature-media">
-        <!-- SCREENSHOT 1 (reused) -->
-        <div class="frame">
+        <!-- SCREENSHOT — dashboard floor board again (admin.png) -->
+        <div class="frame frame-shot">
           <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/dashboard</span></div>
-          <img src="assets/img/admin.png" width="1440" height="900" loading="lazy" decoding="async"
-               data-i18n-attr="alt:shots.alt1"
-               alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+          <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+            <img src="assets/img/admin.png" width="1910" height="2045" loading="lazy" decoding="async"
+                 data-i18n-attr="alt:shots.alt1"
+                 alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+            <span class="shot-zoom-hint" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+            </span>
+          </button>
         </div>
       </div>
     </article>
@@ -765,14 +852,19 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         </ul>
       </div>
       <div class="feature-media">
-        <!-- SCREENSHOT 3 — Stations screen, per-controller rates, 1440px -->
-        <div class="frame">
+        <!-- SCREENSHOT — Stations screen, per-controller rates (station.png) -->
+        <div class="frame frame-shot">
           <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/stations</span></div>
-          <img src="assets/img/station.png" width="1440" height="900" loading="lazy" decoding="async"
-               data-i18n-attr="alt:shots.alt3"
-               alt="Stations স্ক্রিন — একটি ডিভাইসের কন্ট্রোলার অনুযায়ী ঘণ্টার রেট আর রাউন্ডিং সেটিং।">
+          <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+            <img src="assets/img/station.png" width="1881" height="887" loading="lazy" decoding="async"
+                 data-i18n-attr="alt:shots.alt3"
+                 alt="Stations স্ক্রিন — একটি ডিভাইসের কন্ট্রোলার অনুযায়ী ঘণ্টার রেট আর রাউন্ডিং সেটিং।">
+            <span class="shot-zoom-hint" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+            </span>
+          </button>
         </div>
-        <p class="shot-cap" data-i18n="shots.cap3">স্ক্রিনশট ৩ — Stations স্ক্রিন (১৪৪০px)</p>
       </div>
     </article>
 
@@ -785,41 +877,51 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         <p data-i18n="p2.f3">স্ক্রিন ছেড়ে না গিয়েই ৮০mm রসিদ প্রিন্ট করুন বা PDF সেভ করুন। কাস্টমারের সাথে অঙ্ক নিয়ে তর্ক করার জায়গা থাকে না।</p>
       </div>
       <div class="feature-media">
-        <!-- SCREENSHOT 2 — End session dialog, 1440px -->
-        <div class="frame">
+        <!-- SCREENSHOT — End session dialog (report.png) -->
+        <div class="frame frame-shot">
           <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/session/end</span></div>
-          <img data-shot="shot-2-end-session-bill" src="assets/img/shot-2-end-session-bill.svg" width="1440" height="900" loading="lazy" decoding="async"
-               data-i18n-attr="alt:shots.alt2"
-               alt="End session ডায়ালগ — সময়, ব্লক, রেট, রাউন্ডিং, ডিসকাউন্ট আর To collect এর পুরো হিসাব।">
+          <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+            <img src="assets/img/report.png" width="1843" height="862" loading="lazy" decoding="async"
+                 data-i18n-attr="alt:shots.alt2"
+                 alt="End session ডায়ালগ — সময়, ব্লক, রেট, রাউন্ডিং, ডিসকাউন্ট আর To collect এর পুরো হিসাব।">
+            <span class="shot-zoom-hint" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+            </span>
+          </button>
         </div>
-        <p class="shot-cap" data-i18n="shots.cap2">স্ক্রিনশট ২ — End session ডায়ালগ (১৪৪০px)</p>
       </div>
     </article>
 
     <!-- 5. expenses + sheets -->
     <article class="feature reveal">
       <div>
-        <span class="feature-tag num">05</span>
+        <span class="feature-tag num">04</span>
         <h3 data-i18n="f5.h">খরচের খাতা আর দিন-মাসের হিসাব</h3>
         <p data-i18n="f5.p">কারেন্ট, ইন্টারনেট, বেতন, গেম, স্ন্যাকস, মেরামত — ক্যাটাগরি ধরে খরচ লেখা থাকে, তারিখ দিয়ে ফিল্টার করা যায়। ক্যাশে দেওয়া খরচ সরাসরি খোলা ড্রয়ার থেকে কেটে যায়।</p>
         <p data-i18n="p2.f5">দিনের শিটে: ডিভাইস টাইপ অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের ওঠানামা, টাকা কীভাবে এল (ক্যাশ / ফোন / wallet), আর কত বাকি রইল। মাসের শিটে মাসের প্রতিটা দিন — সেশন, ঘণ্টা, আয়, খরচ, নিট লাভ।</p>
       </div>
       <div class="feature-media">
-        <!-- SCREENSHOT 4 — Daily summary sheet, 1440px -->
-        <div class="frame">
+        <!-- SCREENSHOT — daily summary sheet (summary.png) -->
+        <div class="frame frame-shot">
           <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/reports/daily</span></div>
-          <img data-shot="shot-4-daily-summary" src="assets/img/shot-4-daily-summary.svg" width="1440" height="900" loading="lazy" decoding="async"
-               data-i18n-attr="alt:shots.alt4"
-               alt="দিনের সামারি শিট — ডিভাইস অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের হিসাব আর পেমেন্টের ভাগ।">
+          <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+            <img src="assets/img/summary.png" width="1910" height="1152" loading="lazy" decoding="async"
+                 data-i18n-attr="alt:shots.alt4"
+                 alt="দিনের সামারি শিট — ডিভাইস অনুযায়ী আয়, ক্যাটাগরি অনুযায়ী খরচ, ড্রয়ারের হিসাব আর পেমেন্টের ভাগ।">
+            <span class="shot-zoom-hint" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+            </span>
+          </button>
         </div>
-        <p class="shot-cap" data-i18n="shots.cap4">স্ক্রিনশট ৪ — দিনের সামারি শিট (১৪৪০px)</p>
       </div>
     </article>
 
     <!-- 6. customers -->
     <article class="feature reverse reveal">
       <div>
-        <span class="feature-tag num">06</span>
+        <span class="feature-tag num">05</span>
         <h3 data-i18n="f6.h">নিয়মিত কাস্টমার আর অগ্রিম ব্যালান্স</h3>
         <p data-i18n="p1.f6">অগ্রিম টপ-আপের প্যাকেজ আপনি নিজে ঠিক করেন — ৳৫০০ দিলে ৳৬০০ ব্যালান্স। মেম্বারশিপ টায়ার থাকলে তার ছাড় নিজে থেকেই বসে যায়।</p>
         <p data-i18n="p2.f6">প্রতিটা কাস্টমারের কতবার এসেছে, সব মিলিয়ে কত খরচ করেছে আর এখন ব্যালান্স কত — সব এক জায়গায়। ডিভাইসে ঝোলানো QR কোড স্ক্যান করে কাস্টমার নিজের ফোন থেকেই চেক-ইন করতে পারে।</p>
@@ -831,34 +933,44 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         </ul>
       </div>
       <div class="feature-media">
-        <!-- SCREENSHOT 7 — public QR check-in page, capture at 390px (phone) -->
-        <div class="frame frame-phone">
+        <!-- SCREENSHOT — public QR check-in page, phone (cafetracker-qr.png) -->
+        <div class="frame frame-phone frame-shot">
           <div class="frame-bar" aria-hidden="true"><span class="frame-url">cafetrack.app/c/ps5-03</span></div>
-          <img src="assets/img/cafetracker-qr.png" width="390" height="844" loading="lazy" decoding="async"
-               data-i18n-attr="alt:shots.alt7"
-               alt="ফোনে QR চেক-ইন পেজ — কাস্টমার নিজের ফোন থেকে ডিভাইসে চেক-ইন করছে।">
+          <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+            <img src="assets/img/cafetracker-qr.png" width="373" height="726" loading="lazy" decoding="async"
+                 data-i18n-attr="alt:shots.alt7"
+                 alt="ফোনে QR চেক-ইন পেজ — কাস্টমার নিজের ফোন থেকে ডিভাইসে চেক-ইন করছে।">
+            <span class="shot-zoom-hint" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+            </span>
+          </button>
         </div>
-        <p class="shot-cap" data-i18n="shots.cap7">স্ক্রিনশট ৭ — QR চেক-ইন পেজ (৩৯০px ফোন)</p>
       </div>
     </article>
 
     <!-- 7. analytics -->
     <article class="feature reveal">
       <div>
-        <span class="feature-tag num">07</span>
+        <span class="feature-tag num">06</span>
         <h3 data-i18n="f7.h">কখন ভিড় হয়, কোন ডিভাইস টাকা আনে</h3>
         <p data-i18n="p1.f7">সপ্তাহের ৭ দিন × ২৪ ঘণ্টার একটা হিটম্যাপ দেখিয়ে দেয় আসলে কখন ক্যাফে ভরে। কোন ডিভাইস কত সময় চলল, তার ইউটিলাইজেশন বার পাশেই।</p>
         <p data-i18n="p2.f7">গ্রস প্রফিট, আয় আর ঘণ্টার চার্ট, সবচেয়ে বেশি আয় করা ডিভাইস আর সবচেয়ে বেশি খরচ করা কাস্টমারের তালিকা — নতুন ডিভাইস কেনার আগে এই তথ্যগুলোই কাজে লাগে।</p>
       </div>
       <div class="feature-media">
-        <!-- SCREENSHOT 5 — Analytics heatmap, 1440px -->
-        <div class="frame">
+        <!-- SCREENSHOT — Analytics, peak hours + utilisation (analysis.png) -->
+        <div class="frame frame-shot">
           <div class="frame-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="frame-url">cafetrack.app/analytics</span></div>
-          <img data-shot="shot-5-heatmap" src="assets/img/shot-5-heatmap.svg" width="1440" height="900" loading="lazy" decoding="async"
-               data-i18n-attr="alt:shots.alt5"
-               alt="অ্যানালিটিক্স — ৭ দিন × ২৪ ঘণ্টার পিক আওয়ার হিটম্যাপ আর ডিভাইস ইউটিলাইজেশন বার।">
+          <button type="button" class="shot-zoom" data-i18n-attr="aria-label:shots.zoom" aria-label="স্ক্রিনশটটি বড় করে দেখুন">
+            <img src="assets/img/analysis.png" width="1910" height="2525" loading="lazy" decoding="async"
+                 data-i18n-attr="alt:shots.alt5"
+                 alt="অ্যানালিটিক্স — ৭ দিন × ২৪ ঘণ্টার পিক আওয়ার হিটম্যাপ আর ডিভাইস ইউটিলাইজেশন বার।">
+            <span class="shot-zoom-hint" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+              <span data-i18n="shots.zoom">বড় করে দেখুন</span>
+            </span>
+          </button>
         </div>
-        <p class="shot-cap" data-i18n="shots.cap5">স্ক্রিনশট ৫ — পিক আওয়ার হিটম্যাপ (১৪৪০px)</p>
       </div>
     </article>
 
@@ -1115,6 +1227,15 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
   <span class="fab-txt" data-i18n="fab">ডেমো নিন</span>
 </a>
 
+<!-- Full-size screenshot viewer. Empty until a screenshot is clicked, so the
+     large images are never loaded twice and never before they are asked for. -->
+<dialog class="lightbox" id="lightbox" aria-labelledby="lightbox-cap">
+  <button type="button" class="lightbox-close" id="lightbox-close"
+          data-i18n-attr="aria-label:a11y.close" aria-label="বন্ধ করুন">&times;</button>
+  <img id="lightbox-img" alt="">
+  <p class="lightbox-cap" id="lightbox-cap"></p>
+</dialog>
+
 <script id="ld-json" type="application/ld+json">
 {
   "@context":"https://schema.org",
@@ -1164,25 +1285,6 @@ const CONFIG = {
 
   // TODO (Efat): your domain once it is pointed at this site.
   site: "https://cafetrack.example.com/",
-
-  // Real screenshots are drop-in. Every screenshot on the page starts as the
-  // labelled placeholder SVG; when the page loads it quietly checks whether a
-  // real file of the same name exists next to it and swaps it in.
-  //
-  //   Save your capture as  assets/img/shot-1-floor-board.png  and it appears.
-  //   No code change, no renaming anything else.
-  //
-  // Keep the base name exactly as the placeholder (shot-1-floor-board,
-  // shot-2-end-session-bill, and so on) and keep the same shape — 1440×900 for
-  // the desktop shots, 390×844 for the phone one.
-  //
-  // Set `ext` to "jpg" if you would rather save JPEGs. Set `enabled` to false
-  // to stop the checking entirely once every shot has been replaced (the src
-  // attributes in the markup can then just point at your files directly).
-  shots: {
-    enabled: true,
-    ext: "png"
-  },
 
   // The explainer videos. Each entry needs EITHER a youtubeId (just the id
   // from the watch?v= / youtu.be URL) OR mp4 (a path to your own file).
@@ -1234,7 +1336,8 @@ const T = {
     "nav.faq":"প্রশ্ন", "nav.wa":"WhatsApp করুন",
 
     "a11y.langGroup":"ভাষা নির্বাচন", "a11y.theme":"থিম বদলান", "a11y.menu":"মেনু",
-    "a11y.fab":"WhatsApp এ ডেমো নিন",
+    "a11y.fab":"WhatsApp এ ডেমো নিন", "a11y.close":"বন্ধ করুন",
+    "shots.zoom":"বড় করে দেখুন",
 
     "hero.eyebrow":"গেমিং ক্যাফে ম্যানেজমেন্ট সিস্টেম",
     "hero.h1":"আপনার গেমিং ক্যাফে চলছে অনুমানে, নাকি <em>হিসাবে</em>?",
@@ -1371,12 +1474,6 @@ const T = {
     "cta.btn":"WhatsApp এ ডেমো নিন", "cta.callus":"সরাসরি ফোন করুন",
 
 
-    "shots.cap1":"স্ক্রিনশট ১ — ড্যাশবোর্ডের ফ্লোর বোর্ড (১৪৪০px এ তুলুন)",
-    "shots.cap2":"স্ক্রিনশট ২ — End session ডায়ালগ (১৪৪০px)",
-    "shots.cap3":"স্ক্রিনশট ৩ — Stations স্ক্রিন (১৪৪০px)",
-    "shots.cap4":"স্ক্রিনশট ৪ — দিনের সামারি শিট (১৪৪০px)",
-    "shots.cap5":"স্ক্রিনশট ৫ — পিক আওয়ার হিটম্যাপ (১৪৪০px)",
-    "shots.cap7":"স্ক্রিনশট ৭ — QR চেক-ইন পেজ (৩৯০px ফোন)",
     "shots.alt1":"CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।",
     "shots.alt2":"End session ডায়ালগ — সময়, ব্লক, রেট, রাউন্ডিং, ডিসকাউন্ট আর To collect এর পুরো হিসাব।",
     "shots.alt3":"Stations স্ক্রিন — একটি ডিভাইসের কন্ট্রোলার অনুযায়ী ঘণ্টার রেট আর রাউন্ডিং সেটিং।",
@@ -1401,7 +1498,8 @@ const T = {
     "nav.faq":"FAQ", "nav.wa":"WhatsApp করুন",
 
     "a11y.langGroup":"Choose language", "a11y.theme":"Switch theme", "a11y.menu":"Menu",
-    "a11y.fab":"Book a demo on WhatsApp",
+    "a11y.fab":"Book a demo on WhatsApp", "a11y.close":"Close",
+    "shots.zoom":"View full size",
 
     "hero.eyebrow":"Gaming cafe management system",
     "hero.h1":"Run your gaming cafe on <em>numbers</em>, not guesswork.",
@@ -1538,12 +1636,6 @@ const T = {
     "cta.btn":"Book a demo on WhatsApp", "cta.callus":"Or call me directly",
 
 
-    "shots.cap1":"Screenshot 1 — dashboard floor board (capture at 1440px)",
-    "shots.cap2":"Screenshot 2 — End session dialog (1440px)",
-    "shots.cap3":"Screenshot 3 — Stations screen (1440px)",
-    "shots.cap4":"Screenshot 4 — daily summary sheet (1440px)",
-    "shots.cap5":"Screenshot 5 — peak-hours heatmap (1440px)",
-    "shots.cap7":"Screenshot 7 — QR check-in page (390px phone)",
     "shots.alt1":"CafeTrack dashboard floor board — a tile per device showing who is playing, elapsed time and the running bill.",
     "shots.alt2":"End session dialog — time played, block, rate, rounding, discount and the To collect total.",
     "shots.alt3":"Stations screen — a device's hourly rates by controller count and its rounding settings.",
@@ -1686,6 +1778,12 @@ const T = {
     paintThemeIcon();
   });
 
+  /* ---------- header lifts off once the page scrolls ---------- */
+  const hdr = $(".hdr");
+  const setStuck = () => hdr.classList.toggle("stuck", window.scrollY > 8);
+  setStuck();
+  window.addEventListener("scroll", setStuck, { passive: true });
+
   /* ---------- mobile nav ---------- */
   const burger = $("#burger"), mnav = $("#mobile-nav");
   burger.addEventListener("click", () => {
@@ -1696,6 +1794,29 @@ const T = {
     mnav.classList.remove("open");
     burger.setAttribute("aria-expanded", "false");
   }));
+
+  /* ---------- screenshot viewer ----------
+     The page shows each capture cropped so a feature row stays readable;
+     clicking one opens it whole. The <dialog> gives us the backdrop, the
+     Escape key and the focus trap for free, so there is nothing to reimplement
+     — and where <dialog> is unsupported the click simply opens the image. */
+  const lb = $("#lightbox"), lbImg = $("#lightbox-img"), lbCap = $("#lightbox-cap");
+  const canDialog = typeof lb.showModal === "function";
+  $$(".shot-zoom").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const img = btn.querySelector("img");
+      if (!canDialog) { window.open(img.currentSrc || img.src, "_blank", "noopener"); return; }
+      lbImg.src = img.currentSrc || img.src;
+      lbImg.alt = img.alt;
+      lbCap.textContent = img.alt;
+      lb.showModal();
+    });
+  });
+  $("#lightbox-close").addEventListener("click", () => lb.close());
+  // clicking the backdrop (i.e. outside the image) closes it too
+  lb.addEventListener("click", (ev) => { if (ev.target === lb) lb.close(); });
+  // drop the large src on close so it is not held in memory for the whole visit
+  lb.addEventListener("close", () => { lbImg.removeAttribute("src"); });
 
   /* ---------- reveal on scroll ---------- */
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1738,9 +1859,14 @@ const T = {
       if (val) {
         el.textContent = val;
         el.removeAttribute("data-i18n");   // a real amount is not translated
+        el.classList.remove("is-tbd");
       } else {
         el.setAttribute("data-i18n", "pricing.tbd");
         el.textContent = T[lang]["pricing.tbd"];
+        // A sentence set in the big gradient numeral style wraps to three
+        // ragged lines and reads as a broken price. Mark it so it is typeset
+        // as the sentence it is.
+        el.classList.add("is-tbd");
       }
     });
   }
@@ -1907,61 +2033,8 @@ const T = {
     sec.hidden = false;
   }
 
-  /* ---------- drop-in screenshots ----------
-     Each screenshot renders its labelled placeholder immediately, so the page
-     is correct with no JS and paints without waiting. Then, as each one nears
-     the viewport, we probe for a real file of the same base name and swap it
-     in only once it has fully loaded — so a missing file costs one lazy 404
-     and never a flash of broken image. Replaced shots stop being probed
-     because the probe succeeds. */
-  function initShots() {
-    const cfg = CONFIG.shots || {};
-    if (cfg.enabled === false) return;
-    const ext = (cfg.ext || "png").replace(/^\./, "");
-    const imgs = $$("img[data-shot]");
-    if (!imgs.length) return;
-
-    // shot-1 appears twice (hero and feature 01), so probe each name once.
-    const probes = Object.create(null);
-    const probeFor = name => {
-      const real = "assets/img/" + name + "." + ext;
-      if (!probes[name]) {
-        probes[name] = new Promise(resolve => {
-          const p = new Image();
-          p.onload = () => resolve(real);
-          p.onerror = () => resolve(null);
-          p.src = real;
-        });
-      }
-      return probes[name];
-    };
-
-    const upgrade = img => {
-      const name = img.getAttribute("data-shot");
-      probeFor(name).then(real => {
-        if (!real) return;               // no file dropped in yet — keep the placeholder
-        img.src = real;
-        img.removeAttribute("data-shot");
-        // A real screenshot no longer needs the "replace this file" caption.
-        const cap = img.closest(".feature-media")?.querySelector(".shot-cap");
-        if (cap) cap.hidden = true;
-      });
-    };
-
-    if (!("IntersectionObserver" in window)) { imgs.forEach(upgrade); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (!e.isIntersecting) return;
-        io.unobserve(e.target);
-        upgrade(e.target);
-      });
-    }, { rootMargin: "300px 0px" });
-    imgs.forEach(img => io.observe(img));
-  }
-
   /* ---------- misc ---------- */
   $("#year").textContent = new Date().getFullYear();
-  initShots();
   initVideo();
   patchJsonLd();
 
