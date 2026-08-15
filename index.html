@@ -239,7 +239,11 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   border-radius:99px; opacity:.85;
 }
 .hero-grid{display:grid; gap:clamp(30px,5vw,54px); align-items:center}
-@media (min-width:960px){ .hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr)} }
+@media (min-width:960px){
+  .hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr)}
+  /* No video configured — don't leave the second column standing empty. */
+  .hero-grid:has(.hero-video[hidden]){grid-template-columns:minmax(0,1fr)}
+}
 .hero h1{font-size:clamp(1.95rem,5.4vw,3.25rem); margin-bottom:.4em}
 .hero-sub{font-size:clamp(1.02rem,2.2vw,1.2rem); color:var(--fg-2); max-width:56ch}
 .hero-cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:26px}
@@ -285,13 +289,12 @@ html[lang="bn"] .eyebrow{letter-spacing:.04em; text-transform:none}
   color:var(--warn); display:block; margin-bottom:12px;
 }
 
-/* ============================ VIDEO ============================ */
-.video{
-  background:
-    radial-gradient(60% 60% at 50% 0%, rgba(232,25,47,.13), transparent 65%),
-    var(--bg-2);
-  border-block:1px solid var(--line-soft);
-}
+/* ============================ VIDEO ============================
+   The player lives in the hero's second column. `.hero-video` is hidden until
+   initVideo() finds at least one item, so the hero collapses to a single
+   column rather than showing a dead play button. */
+.hero-video .video-panel{margin:0}
+.hero-video .video-tabs{margin-top:16px}
 .video-panel{
   position:relative; margin:38px auto 0; max-width:940px;
   border-radius:var(--radius-lg); overflow:hidden;
@@ -632,19 +635,31 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
       <p class="hero-note" data-i18n="hero.note">Game n Chill এর জন্য বানানো, এখন সব ক্যাফের জন্য</p>
     </div>
 
-    <div class="feature-media">
-      <!-- SCREENSHOT 1 — dashboard floor board, capture at 1440px wide -->
-      <div class="frame">
-        <div class="frame-bar" aria-hidden="true">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <span class="frame-url">cafetrack.app/dashboard</span>
-        </div>
-        <img src="assets/img/admin.png" width="1440" height="900"
-             fetchpriority="high" decoding="async"
-             data-i18n-attr="alt:shots.alt1"
-             alt="CafeTrack ড্যাশবোর্ডের ফ্লোর বোর্ড — প্রতিটি ডিভাইসের টাইল, কে খেলছে, কত সময় হলো আর এই মুহূর্তে বিল কত।">
+    <!-- ===================== HERO VIDEO =====================
+         The player is a facade: only a poster image loads with the page, so no
+         video host is contacted on a 3G first paint and nobody is tracked
+         before they choose to watch. Videos come from CONFIG.video.items — add
+         or remove entries there. With one entry the picker below the panel is
+         hidden; with several it becomes a keyboard-operable tab strip. Empty
+         the list and this whole block stays hidden, so a visitor never meets a
+         dead play button — the hero simply reads as a one-column hero. -->
+    <div id="video" class="hero-video" hidden>
+      <div class="video-panel reveal" id="video-panel" role="tabpanel">
+        <img id="video-poster" src="assets/img/video-poster.svg" width="1280" height="720"
+             fetchpriority="high" decoding="async" alt="">
+        <button type="button" class="video-play" id="video-play">
+          <span class="video-play-ring" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+          </span>
+          <span class="video-play-txt" data-i18n="video.play">ভিডিওটি চালান</span>
+          <span class="video-play-sub" id="video-length" hidden></span>
+        </button>
       </div>
-      <p class="shot-cap" data-i18n="shots.cap1">স্ক্রিনশট ১ — ড্যাশবোর্ডের ফ্লোর বোর্ড (১৪৪০px এ তুলুন)</p>
+
+      <!-- Filled in by initVideo() from CONFIG.video.items. Stays hidden when
+           there is only one video. -->
+      <div class="video-tabs reveal" id="video-tabs" role="tablist"
+           data-i18n-attr="aria-label:video.tabsLabel" aria-label="ভিডিও বেছে নিন" hidden></div>
     </div>
   </div>
 </section>
@@ -679,40 +694,6 @@ html[lang="bn"] .ftr h4{text-transform:none; letter-spacing:.02em}
         <p data-i18n="problem.a4">এক ঘণ্টার বুকিং দেড় ঘণ্টা হয়ে যায়। ব্যস্ত সন্ধ্যায় কেউ ঘড়ি দেখে না।</p>
       </article>
     </div>
-  </div>
-</section>
-
-<!-- ======================= VIDEO =======================
-     The player is a facade: only a poster image loads with the page, so no
-     video host is contacted on a 3G first paint and nobody is tracked before
-     they choose to watch. Videos come from CONFIG.video.items — add or remove
-     entries there. With one entry the picker below the panel is hidden; with
-     several it becomes a keyboard-operable tab strip. Empty the list and the
-     whole section hides itself, so a visitor never meets a dead play button. -->
-<section id="video" class="video" aria-labelledby="video-h" hidden>
-  <div class="wrap center">
-    <div class="reveal">
-      <span class="eyebrow" data-i18n="video.eyebrow">চোখে দেখুন</span>
-      <h2 class="sec-title" id="video-h" data-i18n-html="video.h">ভিডিওতে <em>পুরো সিস্টেম</em> দেখে নিন</h2>
-      <p class="sec-lede" data-i18n="video.lede">পড়ার চেয়ে দেখলে তাড়াতাড়ি বোঝা যায়। ভিডিওতে দেখে নিন সিস্টেমটা আসলে কীভাবে চলে।</p>
-    </div>
-
-    <div class="video-panel reveal" id="video-panel" role="tabpanel">
-      <img id="video-poster" src="assets/img/video-poster.svg" width="1280" height="720"
-           loading="lazy" decoding="async" alt="">
-      <button type="button" class="video-play" id="video-play">
-        <span class="video-play-ring" aria-hidden="true">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
-        </span>
-        <span class="video-play-txt" data-i18n="video.play">ভিডিওটি চালান</span>
-        <span class="video-play-sub" id="video-length" hidden></span>
-      </button>
-    </div>
-
-    <!-- Filled in by initVideo() from CONFIG.video.items. Stays hidden when
-         there is only one video. -->
-    <div class="video-tabs reveal" id="video-tabs" role="tablist"
-         data-i18n-attr="aria-label:video.tabsLabel" aria-label="ভিডিও বেছে নিন" hidden></div>
   </div>
 </section>
 
@@ -1921,7 +1902,7 @@ const T = {
     const imgs = $$("img[data-shot]");
     if (!imgs.length) return;
 
-    // shot-1 appears twice (hero and feature 01), so probe each name once.
+    // A name can appear on more than one shot, so probe each name once.
     const probes = Object.create(null);
     const probeFor = name => {
       const real = "assets/img/" + name + "." + ext;
